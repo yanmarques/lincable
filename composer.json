@@ -22,12 +22,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Lincable": "src/Lincable"
+            "Lincable\\": "src/Lincable"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Lincable": "tests"
+            "Tests\\Lincable\\": "tests"
         }
     },
     "minimum-stability": "dev"
