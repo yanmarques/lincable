@@ -1,0 +1,34 @@
+{
+    "name": "yanmarques/lincable",
+    "description": "Storage link generator for laravel Eloquent",
+    "type": "package",
+    "keywords": [
+        "laravel", "eloquent", "storage", "link"
+    ],
+    "require": {
+        "php": ">=7.1",
+        "laravel/framework": "5.6.*",
+        "nicmart/tree": "~0.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yan Marques",
+            "email": "marques_yan@outlook.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Lincable": "src/Lincable"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Lincable": "tests"
+        }
+    },
+    "minimum-stability": "dev"
+}
