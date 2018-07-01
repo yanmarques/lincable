@@ -2,7 +2,7 @@
 
 namespace Tests\Lincable;
 
-use Lincable\Parser;
+use Lincable\Parsers\Parser;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 use Lincable\Contracts\Formatters\Formatter;

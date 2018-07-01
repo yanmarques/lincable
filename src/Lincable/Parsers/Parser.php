@@ -1,6 +1,6 @@
 <?php
 
-namespace Lincable;
+namespace Lincable\Parsers;
 
 use LogicException;
 use Illuminate\Support\Collection;
@@ -167,17 +167,17 @@ abstract class Parser
      * @throws \LogicException
      * 
      * @param  string $name
-     * @param  array  $params
+     * @param  mixed  $params
      * @return mixed
      */
-    protected function callFormatter(string $name, array $params = [])
+    protected function callFormatter(string $name, $params = [])
     {
         if ($formatter = $this->findFormatter($name)) {
             
             // Execute the formatter class with the params.
             return $this->executeFormatter(
                 $this->resolveFormatter($formatter), 
-                $params
+                (array) $params
             );
         }
 
