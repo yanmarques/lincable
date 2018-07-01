@@ -220,9 +220,9 @@ abstract class Parser
      * @param  string $parameter
      * @return bool
      */
-    protected function isParameterDynamic(string $parameter)
+    public function isParameterDynamic(string $parameter)
     {
-        return preg_match($this->getDynamicPattern(), $parameter);
+        return (bool) preg_match($this->getDynamicPattern(), $parameter);
     }
 
     /**
