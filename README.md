@@ -6,7 +6,7 @@ Storage link generator for laravel Eloquent.
 
 How do you manage dynamic link generation when storing files on some cloud storage? When storing files on a dedicated server, like Amazon for example, we have to specify the path where the object will be stored, which is the same for further access. This can get a little tricky when you have multiple definitions on the link, like IDs, timestamps, hash, etc..
 
-## Pruposals
+## Proposals
 
 * The package will allow you to easy configurate the path map.
 * Support for dynamic parameters.
