@@ -15,6 +15,6 @@ class DayFormatter implements Formatter
      */
     public function format($value = null)
     {
-        return Carbon::day;
+        return Carbon::now()->day;
     }
 }
