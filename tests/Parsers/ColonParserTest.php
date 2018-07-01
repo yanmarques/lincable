@@ -22,6 +22,7 @@ class ColonParserTest extends TestCase
             Formatters\MonthFormatter::class,
             Formatters\DayFormatter::class,
             Formatters\RandomFormatter::class,
+            Formatters\TimestampsFormatter::class,
         ]));
     }
 
@@ -108,5 +109,17 @@ class ColonParserTest extends TestCase
         $option = '@useless';
         $this->assertFalse($this->parser->parse($option));
         $this->assertTrue($this->parser->isParameterDynamic($option));
+    }
+
+    /**
+     * Should return a timestamps. 
+     * 
+     * @return void
+     */
+    public function testThatParseReturnsATimestamps()
+    {
+        $expected = sha1(Carbon::now()->timestamp);
+        $result = $this->parser->parse('@foo<timestamps>');
+        $this->assertEquals($expected, $result);
     }
 }
