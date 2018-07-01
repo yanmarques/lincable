@@ -9,7 +9,7 @@ use Lincable\Parsers\ColonParser;
 use Illuminate\Container\Container;
 use Lincable\Exceptions\NotDynamicOptionException;
 
-class ParserTest extends TestCase
+class ColonParserTest extends TestCase
 {
     private $parser;
 
