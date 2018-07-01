@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Lincable;
+namespace Tests\Lincable\Parsers;
 
-use Lincable\Parser;
+use Lincable\Parsers\Parser;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 use Lincable\Contracts\Formatters\Formatter;

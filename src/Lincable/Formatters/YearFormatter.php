@@ -8,7 +8,7 @@ use Lincable\Contracts\Formatters\Formatter;
 /**
  * This class formats the current year. 
  */
-class YearFormatter
+class YearFormatter implements Formatter
 {
     /**
      * @inheritdoc

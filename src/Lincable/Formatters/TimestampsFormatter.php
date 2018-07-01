@@ -6,15 +6,15 @@ use Carbon\Carbon;
 use Lincable\Contracts\Formatters\Formatter;
 
 /**
- * This class formats the current month. 
+ * This class formats a hash of the current timestamps. 
  */
-class MonthFormatter implements Formatter
+class TimestampsFormatter implements Formatter
 {
     /**
      * @inheritdoc
      */
     public function format($value = null)
     {
-        return Carbon::now()->month;
+        return sha1(Carbon::now()->timestamp);
     }
 }
