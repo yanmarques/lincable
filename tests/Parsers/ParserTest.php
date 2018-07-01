@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Lincable;
+namespace Tests\Lincable\Parsers;
 
 use Lincable\Parsers\Parser;
 use PHPUnit\Framework\TestCase;
