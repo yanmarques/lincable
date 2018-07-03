@@ -82,7 +82,7 @@ class ColonParserTest extends TestCase
     public function testThatParseReturnsARandomStringWithCustomLength()
     {
         $length = 10;
-        $result = $this->parser->parse("@foo<random:$length>");
+        $result = $this->parser->parse("@foo<random:{$length}>");
         $this->assertTrue(is_string($result));
         $this->assertTrue(strlen($result) == $length);
     }
