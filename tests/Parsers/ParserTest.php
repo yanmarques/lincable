@@ -3,10 +3,12 @@
 namespace Tests\Lincable\Parsers;
 
 use Lincable\Parsers\Parser;
+use Lincable\Parsers\Options;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 use Lincable\Contracts\Formatters\Formatter;
 use Lincable\Exceptions\NotDynamicOptionException;
+use Lincable\Contracts\Parsers\ParameterInterface;
 
 class ParserTest extends TestCase
 {
@@ -14,8 +16,8 @@ class ParserTest extends TestCase
 
     public function setUp()
     {
-        $this->parser = new DotParser; 
-        $this->parser->setContainer(new Container);
+        $container = new Container;
+        $this->parser = new DotParser($container);
     }
 
     /**
@@ -26,19 +28,19 @@ class ParserTest extends TestCase
     public function testThatAddFormattersAddAnArray()
     {
         $expected = [
-            new FooFormatter,
-            BarFormatter::class
+            'foo' => new FooFormatter,
+            'bar' => BarFormatter::class
         ];
     
-        $this->parser->addFormatters($expected);
+        $this->parser->addFormatters(array_values($expected));
         $this->assertEquals(
             $expected,
-            $this->parser->getFormatters()
+            $this->parser->getFormatters()->toArray()
         );
     }
 
     /**
-     * Should find the formatter by its name.
+     * Should find the formatter by its formatted name.
      * 
      * @return void
      */
@@ -73,7 +75,6 @@ class ParserTest extends TestCase
     public function testThatgetMatchesReturnsArrayWithMatches()
     {
         $expected = ['id', 'bar'];
-        $this->parser->addFormatter(BarFormatter::class);
         $result = $this->parser->getMatches('id.bar');
         $this->assertEquals($expected, $result);
     }
@@ -123,44 +124,42 @@ class DotParser extends Parser
     /**
      * Create a new class instance.
      * 
-     * @param  Illuminate\Contracts\Container\Container $app
-     * @param  mixed $formatters
+     * @param  Illuminate\Contracts\Container\Container|null $app
      * @return void
      */
-    public function __construct(Container $app = null, $formatters = [])
+    public function __construct(Container $app = null)
     {
-        $this->app = $app;
-        $this->formatters = collect($formatters);
-    }
-
-     /**
-     * @inheritdoc
-     */
-    protected function parseMatches(array $matches)
-    {
-        return $this->callFormatter(last($matches));
+        $this->boot($app);
     }
 
     /**
      * @inheritdoc
      */
-    protected function getDynamicPattern() 
+    protected function parseMatches(array $matches): ParameterInterface
+    {
+        return new Options(last($matches));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getDynamicPattern(): string
     {
         return '/^([a-zA-Z_]+)\.([a-zA-Z_]+)$/';
     }
 }
 
-class FooFormatter implements Formatter
+class FooFormatter
 {
-    public function format($value = null)
+    public function format()
     {
         return 'foo';
     }
 }
 
-class BarFormatter implements Formatter
+class BarFormatter
 {
-    public function format($value = null)
+    public function format()
     {
         return 'bar';
     }
