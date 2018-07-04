@@ -44,6 +44,18 @@ abstract class Parser
     abstract protected function getDynamicPattern(): string;
 
     /**
+     * Boot the parser with the container executing initial tasks.
+     * 
+     * @param  \Illuminate\Contracts\Container\Container|null $app
+     * @return void
+     */
+    public function boot(Container $app = null)
+    {
+        $this->formatters = collect();
+        $this->app = $app;
+    }
+
+    /**
      * Push a new formatter to collection. 
      *
      * @param  mixed $formatter
