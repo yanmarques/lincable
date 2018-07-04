@@ -202,16 +202,16 @@ abstract class Parser
     }
 
     /**
-     * Resolve the formatter object call with the array parameters. 
+     * Resolve the formatter call using the container with the array parameters.
+     * The formatter argument should be a callable for the container. 
      *
-     * @param  Lincable\Contracts\Formatters\Formatter $formatter
+     * @param  mixed $formatter
      * @param  array $params
      * @return mixed
      */
-    protected function executeFormatter(Formatter $formatter, array $params = [])
+    protected function callFormatter($formatter, array $params = [])
     {
-        // Call the format method of formatter class.  
-        return $formatter->format(...$params);
+        return $this->getContainer()->call($formatter, $params);
     }
 
     /**
