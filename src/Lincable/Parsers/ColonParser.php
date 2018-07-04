@@ -7,18 +7,9 @@ class ColonParser extends Parser
     /**
      * @inheritdoc
      */
-    protected function parseMatches(array $matches)
+    protected function parseMatches(array $matches): Options
     {
-        if (count($matches) > 1) {
-
-            // Get the last match on array, which contains the
-            // formatter options.
-            $formatter = last($matches);
-            
-            return $this->callFormatter(...explode(':', $formatter));
-        }
-
-        return false;
+        return new Options(head($matches));
     }
 
     /**
