@@ -20,6 +20,6 @@ class ColonParser extends Parser
      */
     protected function getDynamicPattern(): string
     {
-        return '/^:[a-zA-Z_-]+$/';
+        return '/^\:([a-zA-Z_-]+)$/';
     }
 }
