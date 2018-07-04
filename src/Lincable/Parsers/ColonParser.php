@@ -15,7 +15,7 @@ class ColonParser extends Parser
     /**
      * @inheritdoc
      */
-    protected function getDynamicPattern()
+    protected function getDynamicPattern(): string
     {
         return '/^\@([a-zA-Z_]+)(?:\<([a-zA-Z0-9_:]+)\>)?$/';
     }
