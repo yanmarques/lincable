@@ -198,7 +198,7 @@ abstract class Parser
             );
         }
 
-        throw new LogicException("Call to undefined formatter [$name].");
+        throw new LogicException("Call to undefined formatter [{$name}].");
     }
 
     /**
