@@ -42,8 +42,21 @@ class BuildClassnamesTest extends TestCase
      */
     public function testThatBuildNamespaceReturnsTheNamespaceSeparatedByDoubleBackslash()
     {
-        $expected = '\\The\\Foo\\BarNamespace';
+        $expected = 'The\\Foo\\BarNamespace';
         $classes = ['the', 'foo', 'barNamespace'];
+        $result = $this->buildNamespace($classes);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Should return the namespace with a backslash on start.
+     *
+     * @return void
+     */
+    public function testThatBuildNamespaceReturnsTheNamespaceStartingWithDoubleBackslash()
+    {
+        $expected = '\\The\\Foo\\BarNamespace';
+        $classes = ['\\the', 'foo', 'barNamespace'];
         $result = $this->buildNamespace($classes);
         $this->assertEquals($expected, $result);
     }
