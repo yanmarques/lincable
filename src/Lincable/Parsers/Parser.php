@@ -120,13 +120,13 @@ abstract class Parser
     }
 
     /**
-     * Return array with formatter classes. 
+     * Return the formatters collection. 
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function getFormatters()
     {
-        return $this->formatters->toArray();
+        return $this->formatters;
     }
 
     /**
