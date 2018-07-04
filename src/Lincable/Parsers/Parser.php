@@ -159,11 +159,7 @@ abstract class Parser
      */
     public function findFormatter(string $option)
     {
-        return $this->firstClassName(
-            $option, 
-            $this->formatters->toArray(), 
-            'Formatter'
-        );
+        return $this->formatters->get($option);
     }
 
     /**
