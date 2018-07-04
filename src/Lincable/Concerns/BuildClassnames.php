@@ -47,4 +47,21 @@ trait BuildClassnames
     {
         return Str::camel(class_basename($class));
     }
+
+    /**
+     * Remove the backslash on start of class.
+     *
+     * @param  string $class
+     * @return string
+     */
+    protected function removeBackslash(string $class)
+    {
+        if (starts_with($class, '\\')) {
+
+            // Get the class without backslash.
+            $class = str_after($class, '\\');
+        }
+
+        return $class;
+    }
 }
