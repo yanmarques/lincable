@@ -10,72 +10,28 @@ class BuildClassnamesTest extends TestCase
     use BuildClassnames;
 
     /**
-     * Should find the class by name with class namespaces.
-     * 
-     * @return void
-     */
-    public function testThatFirstClassNameFindTheClass()
-    {
-        $expected = FooTester::class;
-        
-        $classes = [
-            FooTester::class,
-            BarTester::class
-        ];
-
-        $result = $this->firstClassName('foo', $classes, 'Tester');
-        $this->assertEquals($expected, $result); 
-    }
-
-    /**
-     * Shoudld find the class name from class objects.
-     * 
-     * @return void
-     */
-    public function testThatFirstClassNameFindTheClassFromObject()
-    {
-        $expected = new BarTester;
-
-        $classes = [
-            new FooTester,
-            $expected
-        ];
-
-        $result = $this->firstClassName('bar', $classes, 'Tester');
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
      * Should return the class basename to camel case.
      * 
      * @return void
      */
-    public function testThatNameToCamelCaseCamelsTheName()
+    public function testThatGetNameReturnClassToCamelCase()
     {
-        $expected = 'fooTester';
-        $result = $this->nameToCamelCase(FooTester::class);
+        $expected = 'fooClass';
+        $result = $this->nameFromClass('Bar\Baz\FooClass');
         $this->assertEquals($expected, $result);
     }
 
     /**
-     * Should return the object basename to camel case.
+     * Should return the class basename to camel case without
+     * the suffix passed.
      * 
      * @return void
      */
-    public function testThatNameToCamelCaseCamelsTheClassBaseName()
+    public function testThatGetNameReturnClassToCamelCaseWithoutSuffix()
     {
-        $expected = 'barTester';
-        $result = $this->nameToCamelCase(new BarTester);
+        $suffix = 'AnyUselessSuffix';
+        $expected = 'fooClass';
+        $result = $this->nameFromClass('Bar\Baz\FooClass'.$suffix, $suffix);
         $this->assertEquals($expected, $result);
     }
-}
-
-class FooTester
-{
-    //
-}
-
-class BarTester
-{
-    //
 }
