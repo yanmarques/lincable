@@ -3,6 +3,7 @@
 namespace Tests\Lincable\Parsers;
 
 use Carbon\Carbon;
+use LogicException;
 use Lincable\Formatters;
 use PHPUnit\Framework\TestCase;
 use Lincable\Parsers\ColonParser;
@@ -15,111 +16,62 @@ class ColonParserTest extends TestCase
 
     public function setUp()
     {
-        $this->parser = new ColonParser; 
-        $this->parser->setContainer(new Container);
-        $this->parser->setFormatters(collect([
-            Formatters\YearFormatter::class,
-            Formatters\MonthFormatter::class,
-            Formatters\DayFormatter::class,
-            Formatters\RandomFormatter::class,
-            Formatters\TimestampsFormatter::class,
-        ]));
+        $container = new Container;
+        $this->parser = new ColonParser($container);
     }
 
     /**
-     * Should return the year from dynamic parameter.
+     * Should return the expected string executed on callable.
      * 
      * @return void
      */
-    public function testThatParseReturnsTheCurrentYear()
+    public function testThatParseReturnTheStringWithCallableFormatter()
     {
-        $expected = Carbon::now()->year;
-        $result = $this->parser->parse('@foo<year>');
+        $expected = 'foo';
+        $this->parser->addFormatter(function () {
+            return 'foo';
+        }, 'bar');
+        $result = $this->parser->parse(':bar');
         $this->assertEquals($expected, $result);
     }
 
     /**
-     * Should return the month from dynamic parameter.
+     * Should return the expected string on format method.
      * 
      * @return void
      */
-    public function testThatParseReturnsTheCurrentMonth()
+    public function testThatParseReturnFooWithFooFormatter()
     {
-        $expected = Carbon::now()->month;
-        $result = $this->parser->parse('@foo<month>');
+        $expected = 'foo';
+        $this->parser->addFormatter(FooFormatter::class);
+        $result = $this->parser->parse(':foo');
         $this->assertEquals($expected, $result);
     }
 
     /**
-     * Should return the year from dynamic parameter.
+     * Should return the expected string calling formatter with a custom name.
      * 
      * @return void
      */
-    public function testThatParseReturnsTheCurrentDay()
+    public function testThatAddProviderWithCustomFormatterName()
     {
-        $expected = Carbon::now()->day;
-        $result = $this->parser->parse('@foo<day>');
+        $expected = 'foo';
+        $customName = 'customName';
+        $this->parser->addFormatter(FooFormatter::class, $customName);
+        $result = $this->parser->parse(":{$customName}");
         $this->assertEquals($expected, $result);
     }
 
     /**
-     * Should return a random string with length of 32. 
+     * Should throw an \LogicException because no formatter was found.
      * 
      * @return void
      */
-    public function testThatParseReturnsARandomString()
+    public function testThatParseThrowsAnLogicException()
     {
-        $result = $this->parser->parse('@foo<random>');
-        $this->assertTrue(is_string($result));
-        $this->assertTrue(strlen($result) == 32);
-    }
-
-    /**
-     * Should return a random string with the specified length. 
-     * 
-     * @return void
-     */
-    public function testThatParseReturnsARandomStringWithCustomLength()
-    {
-        $length = 10;
-        $result = $this->parser->parse("@foo<random:{$length}>");
-        $this->assertTrue(is_string($result));
-        $this->assertTrue(strlen($result) == $length);
-    }
-
-    /**
-     * Should throw an exception indicating option is not dynamic.
-     * 
-     * @return void
-     */
-    public function testThatParseThrowsNotDynamicOptionException()
-    {
-        $this->expectException(NotDynamicOptionException::class);
-        $this->parser->parse('@useless<foo');
-    }
-
-    /**
-     * Should recognize the parameter is dynamic, but the parse returns
-     * false for no formatter option.
-     * 
-     * @return void
-     */
-    public function testThatParseRecognizesTheDynamicParameterWithNoFormatter()
-    {
-        $option = '@useless';
-        $this->assertFalse($this->parser->parse($option));
-        $this->assertTrue($this->parser->isParameterDynamic($option));
-    }
-
-    /**
-     * Should return a timestamps. 
-     * 
-     * @return void
-     */
-    public function testThatParseReturnsATimestamps()
-    {
-        $expected = sha1(Carbon::now()->timestamp);
-        $result = $this->parser->parse('@foo<timestamps>');
-        $this->assertEquals($expected, $result);
+        $option = ':useless';
+    
+        $this->expectException(LogicException::class);
+        $this->parser->parse($option);
     }
 }
