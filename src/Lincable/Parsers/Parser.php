@@ -178,22 +178,25 @@ abstract class Parser
     }
 
     /**
-     * Call the formatter class finding it by name. 
+     * Run the parser for the parameter.
      *
-     * @throws \LogicException
-     * 
-     * @param  string $name
-     * @param  mixed  $params
+     * @param  Lincable\Contracts\Parsers\ParameterInterface $parameter
      * @return mixed
      */
-    protected function callFormatter(string $name, $params = [])
+    protected function runForParameter(ParameterInterface $parameter) 
     {
+        // Get parameter value name.
+        $name = $parameter->getValue();
+
         if ($formatter = $this->findFormatter($name)) {
             
+            // Get a container callable.
+            $callable = $this->resolveFormatter($formatter); 
+
             // Execute the formatter class with the params.
-            return $this->executeFormatter(
-                $this->resolveFormatter($formatter), 
-                (array) $params
+            return $this->callFormatter(
+                $callable, 
+                $parameter->getParams()
             );
         }
 
