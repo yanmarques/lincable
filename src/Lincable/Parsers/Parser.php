@@ -59,11 +59,15 @@ abstract class Parser
      * Push a new formatter to collection. 
      *
      * @param  mixed $formatter
+     * @param  string $name
      * @return this
      */
-    public function addFormatter($formatter)
+    public function addFormatter($formatter, string $name = null)
     {
-        $this->formatters->push($formatter);
+        $this->formatters->put(
+            $name ?: $this->nameFromClass($formatter, 'Formatter'),
+            $formatter
+        );
         return $this;
     }
 
