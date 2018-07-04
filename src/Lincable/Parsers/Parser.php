@@ -40,7 +40,7 @@ abstract class Parser
      * 
      * @return string
      */
-    abstract protected function getDynamicPattern();
+    abstract protected function getDynamicPattern(): string;
 
     /**
      * Push a new formatter to collection. 
