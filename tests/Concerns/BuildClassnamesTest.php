@@ -47,4 +47,16 @@ class BuildClassnamesTest extends TestCase
         $result = $this->buildNamespace($classes);
         $this->assertEquals($expected, $result);
     }
+
+    /**
+     * Should remove backslash from start.
+     *
+     * @return void
+     */
+    public function testThatRemoveBackslashRemoveBackslashFromStart()
+    {
+        $expected = 'foo';
+        $result = $this->removeBackslash('\\'.$expected);
+        $this->assertEquals($expected, $result);
+    }
 }
