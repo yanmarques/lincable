@@ -4,10 +4,11 @@ namespace Lincable\Parsers;
 
 use LogicException;
 use Illuminate\Support\Collection;
-use Illuminate\Contracts\Container\Container;
 use Lincable\Concerns\BuildClassnames;
 use Lincable\Contracts\Formatters\Formatter;
+use Illuminate\Contracts\Container\Container;
 use Lincable\Exceptions\NotDynamicOptionException;
+use Lincable\Contracts\Parsers\ParameterInterface;
 
 abstract class Parser
 {
