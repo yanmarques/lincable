@@ -31,9 +31,9 @@ abstract class Parser
      * Return the formatter call for the matches on parse.
      * 
      * @param  array $matches
-     * @return mixed
+     * @return Lincable\Parsers\Options
      */
-    abstract protected function parseMatches(array $matches);
+    abstract protected function parseMatches(array $matches): Options;
 
     /**
      * Return the dynamic regex pattern.
