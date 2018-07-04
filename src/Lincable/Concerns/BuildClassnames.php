@@ -31,10 +31,23 @@ trait BuildClassnames
      */
     protected function buildNamespace(array $classes)
     {
-        return array_reduce($classes, function ($namespace, $class) {
-            $studlyClass = Str::studly($class);
-            return $namespace.Str::start($studlyClass, '\\');
+        // Transform all class names.
+        array_walk($classes, function (&$class, $key) {
+
+            // Determine wheter class starts with backslash.
+            $appends = starts_with($class, '\\');
+
+            // Remove backslash from class and studly case it.
+            $class = Str::studly($this->removeBackslash($class));
+
+            if ($key == 0 && $appends) {
+
+                // Appends a backslash for first class if required.
+                $class = '\\'.$class;
+            }
         });
+        
+        return implode('\\', $classes);
     }
 
     /**
