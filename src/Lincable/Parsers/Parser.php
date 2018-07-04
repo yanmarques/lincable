@@ -83,10 +83,13 @@ abstract class Parser
     {
         if ($this->shouldParse($option)) {
             
-            // We have verified the option is dynamic and 
-            // has matches. Now we pass the controll to the implemented
-            // abstract function.
-            return $this->parseMatches($this->getMatches($option));
+            // Now that we have verified the option is dynamic and has 
+            // matches, we get the Option object from the implemented
+            // method to deal with the matches.  
+            $parameter =  $this->parseMatches($this->getMatches($option));
+
+            // Return the content of the option executed.
+            return $this->runForParameter($parameter);
         }
 
         throw new NotDynamicOptionException("Can not parse non dynamics parameter [$option].");
