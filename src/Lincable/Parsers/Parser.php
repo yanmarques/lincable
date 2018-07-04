@@ -217,20 +217,26 @@ abstract class Parser
     }
 
     /**
-     * Resolve a formatter to class instance.
+     * Resolve a formatter to a container callable.
      * 
      * @param  mixed $formatter
-     * @return void
+     * @return mixed
      */
     protected function resolveFormatter($formatter)
     {
-        if (is_string($formatter)) {
+        if (is_callable($formatter)) {
 
-            // Resolve the formatter instance using the container.
-            $formatter = $this->app->make($formatter);
+            // Just return the closure.  
+            return $formatter;
         }
 
-        return $formatter;
+        if (is_string($formatter)) {
+
+            // Try to create formatter instance using dependency injection.
+            $formatter = $this->getContainer()->make($formatter);
+        }
+
+        return [$formatter, 'format'];
     }
 
     /**
