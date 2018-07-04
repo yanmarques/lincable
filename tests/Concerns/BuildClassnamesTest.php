@@ -11,7 +11,7 @@ class BuildClassnamesTest extends TestCase
 
     /**
      * Should return the class basename to camel case.
-     * 
+     *
      * @return void
      */
     public function testThatGetNameReturnClassToCamelCase()
@@ -24,7 +24,7 @@ class BuildClassnamesTest extends TestCase
     /**
      * Should return the class basename to camel case without
      * the suffix passed.
-     * 
+     *
      * @return void
      */
     public function testThatGetNameReturnClassToCamelCaseWithoutSuffix()
@@ -32,6 +32,19 @@ class BuildClassnamesTest extends TestCase
         $suffix = 'AnyUselessSuffix';
         $expected = 'fooClass';
         $result = $this->nameFromClass('Bar\Baz\FooClass'.$suffix, $suffix);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Should return the correct namespace.
+     *
+     * @return void
+     */
+    public function testThatBuildNamespaceReturnsTheNamespaceSeparatedByDoubleBackslash()
+    {
+        $expected = '\\The\\Foo\\BarNamespace';
+        $classes = ['the', 'foo', 'barNamespace'];
+        $result = $this->buildNamespace($classes);
         $this->assertEquals($expected, $result);
     }
 }
