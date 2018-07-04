@@ -7,6 +7,13 @@ use Illuminate\Support\Str;
 trait BuildClassnames
 {
     /**
+     * Determine wheter the case to use is camel.
+     *
+     * @var bool
+     */
+    protected $camelCase = true;
+
+    /**
      * Return the basename of class do camel case removing
      * unecessary suffixes.
      *
@@ -16,7 +23,7 @@ trait BuildClassnames
      */
     protected function nameFromClass($class, string $suffix = null)
     {
-        $name = $this->classToCamelCase($class);
+        $name = $this->convertCase($class);
             
         return Str::endsWith($name, $suffix)
             ? substr($name, 0, strlen($suffix) * -1)
@@ -58,7 +65,18 @@ trait BuildClassnames
      */
     protected function classToCamelCase($class)
     {
-        return Str::camel(class_basename($class));
+        return Str::camel($class);
+    }
+
+    /**
+     * Return the class basename to snake case.
+     *
+     * @param  mixed $class
+     * @return string
+     */
+    protected function classToSnakeCase($class)
+    {
+        return Str::snake($class);
     }
 
     /**
@@ -70,11 +88,28 @@ trait BuildClassnames
     protected function removeBackslash(string $class)
     {
         if (starts_with($class, '\\')) {
-
+        
             // Get the class without backslash.
             $class = str_after($class, '\\');
         }
 
         return $class;
+    }
+
+    /**
+     * Convert the class basenmae.
+     *
+     * @param  string $class
+     * @return string
+     */
+    protected function convertCase(string $class)
+    {
+        $basename = class_basename($class);
+
+        if ($this->camelCase) {
+            return $this->classToCamelCase($basename);
+        }
+
+        return $this->classToSnakeCase($basename);
     }
 }
