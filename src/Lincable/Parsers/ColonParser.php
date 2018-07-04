@@ -2,12 +2,15 @@
 
 namespace Lincable\Parsers;
 
+use Illuminate\Contracts\Container\Container;
+use Lincable\Contracts\Parsers\ParameterInterface;
+
 class ColonParser extends Parser
 {
     /**
      * @inheritdoc
      */
-    protected function parseMatches(array $matches): Options
+    protected function parseMatches(array $matches): ParameterInterface
     {
         return new Options(head($matches));
     }
