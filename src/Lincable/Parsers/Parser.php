@@ -100,9 +100,9 @@ abstract class Parser
      */
     public function addFormatters($formatters)
     {
-        array_map(function ($formatter) {
-            $this->addFormatter($formatter);
-        }, $formatters);
+        array_walk($formatters, function ($formatter, $name) {
+            $this->addFormatter($formatter, is_int($name) ? null : $name);
+        });
 
         return $this;
     }
