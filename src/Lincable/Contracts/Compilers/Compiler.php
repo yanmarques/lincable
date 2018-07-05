@@ -7,12 +7,19 @@ use Lincable\Parsers\Parser;
 interface Compiler
 {
     /**
-     * Get all dynamic parameters on url.
+     * Compile a given url through the parser.
      *
      * @param  string $url
+     * @return string
+     */
+    public function compile(string $url): string;
+
+    /**
+     * Get all dynamic parameters on url based on parser.
+     *
      * @return array
      */
-    public function compile(string $url): array;
+    public function parseDynamics(string $url): array;
 
     /**
      * Return all url fragments.
