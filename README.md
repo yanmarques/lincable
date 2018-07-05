@@ -6,9 +6,7 @@ Storage manager for laravel Eloquent.
 
 # Why Lincable?
 
-How do you manage storing uploaded files with dynamic link generation on some cloud storage? And when you need also to relate this file with a model on your database? When storing files on a dedicated server, like Amazon for example, we have to specify the path where the object will be stored, which is the same for further access. This can get a little tricky when you have multiple definitions on the link, like IDs, timestamps, hash, etc... 
-
-When 
+How do you manage storing uploaded files with dynamic link generation on some cloud storage? And when you need also to relate this file with a model on your database? When storing files on a dedicated server, like Amazon for example, we have to specify the path where the object will be stored, which is the same for further access. This can get a little tricky when you have multiple definitions on the link, like IDs, timestamps, hash, etc...  
 
 ## Proposals
 
