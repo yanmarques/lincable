@@ -59,4 +59,36 @@ class UrlCompiler implements Compiler
     {
         return explode('/', $url);
     }
+
+    /**
+     * Build an url from array fragments.
+     *
+     * @param  array $fragments
+     * @return string
+     */
+    public function buildUrlFragments(array $fragments): string
+    {
+        return implode('/', $fragments);
+    }
+
+    /**
+     * Set the parser used on compiler.
+     *
+     * @param  \Lincable\Parsers\Parser $parser
+     * @return void
+     */
+    public function setParser(Parser $parser)
+    {
+        $this->parser = $parser;
+    }
+
+    /**
+     * Get the current parser used on compiler.
+     *
+     * @return \Lincable\Parsers\Parser
+     */
+    public function getParser(): Parser
+    {
+        return $this->parser;
+    }
 }
