@@ -108,7 +108,7 @@ class UrlConfTest extends TestCase
     public function testThatPushAddsNewConfiguration()
     {
         $this->expectException(ConfModelNotFoundException::class);
-        $this->urlConf->push('bar', 'baz');
+        $this->urlConf->push('baz', 'baz');
     }
 
     /**
