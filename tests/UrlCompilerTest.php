@@ -87,6 +87,28 @@ class UrlCompilerTest extends TestCase
         $result = $this->compiler->compile('test/foo@bar');
         $this->assertEquals($expected, $result);
     }
+
+    /**
+     * Should return true for dynamic url.
+     *
+     * @return void
+     */
+    public function testThatHasDynamicsReturnTrueForDynamicUrl()
+    {
+        $result = $this->compiler->hasDynamics(':foo');
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Should return false for not dynamic curl.
+     *
+     * @return void
+     */
+    public function testThatHasDynamicsReturnFalseForNotDynamicUrl()
+    {
+        $result = $this->compiler->hasDynamics('foo/baz');
+        $this->assertFalse($result);
+    }
 }
 
 class Bar
