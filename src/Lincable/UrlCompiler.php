@@ -35,12 +35,12 @@ class UrlCompiler implements Compiler
     {
         // Parse each fragment on url.
         $fragments = array_map(function ($fragment) {
-            if ($this->parser->isParameterDynamic($fragment)) {
+            if ($this->getParser()->isParameterDynamic($fragment)) {
 
                 // We assume the parameter fragment is dynamic for
                 // parser, then we can parse it without receiving an exception
                 // in case the fragment is not dynamic.
-                return $this->parser->parse($fragment);
+                return $this->getParser()->parse($fragment);
             }
 
             return $fragment;
@@ -62,13 +62,13 @@ class UrlCompiler implements Compiler
 
             // Determine wheter the parameter is dynamic on parser
             // and should be kept.
-            return $this->parser->isParameterDynamic($parameter);
+            return $this->getParser()->isParameterDynamic($parameter);
         });
 
         return array_map(function ($parameter) {
 
             // Return the matches for the dynamic parameter.
-            return $this->parser->getMatches($parameter);
+            return $this->getParser()->getMatches($parameter);
         }, array_values($dynamicParameters));
     }
 
@@ -126,8 +126,8 @@ class UrlCompiler implements Compiler
     public function getParser(): Parser
     {
         if ($this->parser) {
-        return $this->parser;
-    }
+            return $this->parser;
+        }
 
         throw new \Exception("No parser provided for compiler");
     }
