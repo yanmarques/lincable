@@ -73,6 +73,17 @@ class UrlCompiler implements Compiler
     }
 
     /**
+     * Determine wheter the url has dynamic parameters.
+     *
+     * @param  string $url
+     * @return bool
+     */
+    public function hasDynamics(string $url): bool
+    {
+        return ! empty(array_values($this->parseDynamics($url)));
+    }
+
+    /**
      * Return all url fragments.
      *
      * @param  string $url
