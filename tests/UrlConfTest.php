@@ -110,6 +110,38 @@ class UrlConfTest extends TestCase
         $this->expectException(ConfModelNotFoundException::class);
         $this->urlConf->push('bar', 'baz');
     }
+
+    /**
+     * Should change the already configured model class.
+     *
+     * @return void
+     */
+    public function testThatSetChangeTheConfiguration()
+    {
+        $expected = 'foo';
+        $this->urlConf->push(Foo::class, $expected);
+        $result = $this->urlConf->get(Foo::class);
+        $this->assertEquals($expected, $result);
+
+        $expected = 'test';
+        $this->urlConf->set(Foo::class, 'test');
+        $result = $this->urlConf->get(Foo::class);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Should set an array of configuration.
+     *
+     * @return void
+     */
+    public function testSetWithArrayOfParameters()
+    {
+        $this->urlConf->push(Foo::class, 'foo');
+        $expected = [Foo::class => 'test'];
+        $this->urlConf->set($expected);
+        $result = $this->urlConf->all();
+        $this->assertEquals($expected, $result);
+    }
 }
 
 class Foo
