@@ -109,6 +109,29 @@ class UrlCompilerTest extends TestCase
         $result = $this->compiler->hasDynamics('foo/baz');
         $this->assertFalse($result);
     }
+
+    /**
+     * Should instantiate the compiler without arguments.
+     *
+     * @return void
+     */
+    public function testNewInstanceWithNullArgumentOnConstructor()
+    {
+        $compiler = new UrlCompiler;
+        $this->assertInstanceof(\Lincable\Contracts\Compilers\Compiler::class, $compiler);
+    }
+
+    /**
+     * Should throw an exception because parser is null.
+     *
+     * @return  void
+     */
+    public function testGetParserWithNullParserThrowException()
+    {
+        $compiler = new UrlCompiler;
+        $this->expectException(\Exception::class);
+        $compiler->getParser();
+    }
 }
 
 class Bar
