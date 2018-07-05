@@ -119,10 +119,16 @@ class UrlCompiler implements Compiler
     /**
      * Get the current parser used on compiler.
      *
+     * @throws \Exception
+     *
      * @return \Lincable\Parsers\Parser
      */
     public function getParser(): Parser
     {
+        if ($this->parser) {
         return $this->parser;
+    }
+
+        throw new \Exception("No parser provided for compiler");
     }
 }
