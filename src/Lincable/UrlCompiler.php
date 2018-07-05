@@ -17,10 +17,10 @@ class UrlCompiler implements Compiler
     /**
      * Create a new class instance.
      *
-     * @param  \Lincable\Parsers\Parser $parser
+     * @param  \Lincable\Parsers\Parser|null $parser
      * @return void
      */
-    public function __construct(Parser $parser)
+    public function __construct(Parser $parser = null)
     {
         $this->parser = $parser;
     }
