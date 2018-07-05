@@ -99,10 +99,10 @@ trait BuildClassnames
     /**
      * Convert the class basenmae.
      *
-     * @param  string $class
+     * @param  string|object $class
      * @return string
      */
-    protected function convertCase(string $class)
+    protected function convertCase($class)
     {
         $basename = class_basename($class);
 
