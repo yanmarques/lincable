@@ -77,7 +77,20 @@ class UrlConf implements Repository
      */
     public function set($key, $value = null)
     {
-        $this->push($key, $value);
+        if (is_array($key)) {
+
+            // Handle an array insert value.
+            foreach ($key as $k => $v) {
+                $this->set($k, $v);
+            }
+        } else {
+
+            // Get model class name from key.
+            $key = $this->getModelFromKey($key);
+
+            // Set the configuration.
+            $this->configuration[$key] = $value;
+        }
     }
 
     /**
