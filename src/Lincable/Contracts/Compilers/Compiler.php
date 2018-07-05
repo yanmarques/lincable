@@ -17,9 +17,18 @@ interface Compiler
     /**
      * Get all dynamic parameters on url based on parser.
      *
+     * @param  string $url
      * @return array
      */
     public function parseDynamics(string $url): array;
+
+    /**
+     * Determine wheter the url has dynamic parameters.
+     *
+     * @param  string $url
+     * @return bool
+     */
+    public function hasDynamics(string $url): bool;
 
     /**
      * Return all url fragments.
