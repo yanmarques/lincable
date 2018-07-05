@@ -26,9 +26,32 @@ class UrlCompiler implements Compiler
     }
 
     /**
-     * Get all dynamic parameters on url.
+     * Compile a given url through the parser.
      *
      * @param  string $url
+     * @return string
+     */
+    public function compile(string $url): string
+    {
+        // Parse each fragment on url.
+        $fragments = array_map(function ($fragment) {
+            if ($this->parser->isParameterDynamic($fragment)) {
+
+                // We assume the parameter fragment is dynamic for
+                // parser, then we can parse it without receiving an exception
+                // in case the fragment is not dynamic.
+                return $this->parser->parse($fragment);
+            }
+
+            return $fragment;
+        }, $this->parseUrlFragments($url));
+
+        return $this->buildUrlFragments($fragments);
+    }
+
+    /**
+     * Get all dynamic parameters on url based on parser.
+     *
      * @return array
      */
     public function compile(string $url): array
