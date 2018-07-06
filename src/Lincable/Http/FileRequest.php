@@ -27,6 +27,13 @@ abstract class FileRequest
     protected $request;
 
     /**
+     * Determine wheter has been booted with a request.
+     *
+     * @var bool
+     */
+    protected $booted = false;
+
+    /**
      * The directory where the uploaded file will be temporary moved.
      *
      * @var string
@@ -52,6 +59,21 @@ abstract class FileRequest
         $this->request = $request;
 
         $this->guardFile($request->file($this->getParameter()));
+
+        $this->booted = true;
+    }
+
+    /**
+     * Return wheter the file request is booted.
+     *
+     * If is booted that means the file has been validated and
+     * a request instance is available on instance.
+     *
+     * @return bool
+     */
+    public function isBooted()
+    {
+        return $this->booted;
     }
 
     /**
