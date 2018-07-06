@@ -99,13 +99,14 @@ abstract class FileRequest
     /**
      * Prepared the file to send.
      *
+     * @param  \Illuminate\Contracts\Container\Container $app
      * @return \Symfony\Component\HttpFoundation\File\File
      */
-    public function prepareFile()
+    public function prepareFile(Container $app)
     {
         $file = $this->moveFileToTempDirectory();
 
-        $this->executeFileEvents(app(), $file);
+        $this->executeFileEvents($app, $file);
 
         return $file;
     }
@@ -167,6 +168,8 @@ abstract class FileRequest
      *
      * Here the file can be changed, optimized, etc...
      *
+     * @param  \Illuminate\Contracts\Container\Container $app
+     * @param  \Symfony\Component\HttpFoundation\File\File $file
      * @return void
      */
     protected function executeFileEvents(Container $app, File $file)
