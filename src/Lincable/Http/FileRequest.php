@@ -177,7 +177,7 @@ abstract class FileRequest
         $eventMethod = 'beforeSend';
 
         if (method_exists($this, $eventMethod)) {
-            $app->call([$this, $method], $file);
+            $app->call([$this, $eventMethod], $file);
         }
     }
 
