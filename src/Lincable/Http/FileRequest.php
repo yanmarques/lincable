@@ -185,6 +185,6 @@ abstract class FileRequest
      */
     protected function getSuffix()
     {
-        return 'FileRequest';
+        return class_basename(__CLASS__);
     }
 }
