@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/yanmarques/lincable.svg?branch=dev)](https://travis-ci.org/yanmarques/lincable)
  [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yanmarques/lincable/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/yanmarques/lincable/?branch=dev) 
 
-Eloquent link to an uploaded file and manage storing this file in some cloud storage. :cloud:
+Create a link with Eloquent to an uploaded file and manage storing this file in some cloud storage. :cloud:
 
 # Why this?
 
@@ -44,7 +44,8 @@ You can install using composer:
 $ composer require yanmarques/lincable
 ```
 
-> *Note: For now the package is not configured with Laravel as we are in development process. All you can do is to test*.
+> *Note: For now the package is not configured with Laravel as we are in development process. All you can do is to test.
+> The usage described below is experimental and can change over the time*. 
 
 The first step is to register the url for your model on `config/lincable.php`. By default, the url has dynamic parameters to allow you to execute some logic when generating the url. To specify a dynamic parameter we just type a colon on the start of the parameter and voilá (see [parsers and formatters](#parsers-and-formatters)). For now, we can register the schema of how the url will be generated for the model. 
 
@@ -80,6 +81,7 @@ The ```ImageFileRequest``` is the class to handle the file uploaded. It extends 
 ```php
 
 use Illuminate\Http\UploadedFile;
+use Lincable\Http\
 use Symfony\Component\HttpFoundation\File\File;
 
 class ImageFileRequest extends FileRequest
@@ -91,7 +93,7 @@ class ImageFileRequest extends FileRequest
         ];
     }
     
-    public function beforeSend(File $file)
+    public function boforeSend(File $file)
     {
         // Make file operations before send it to storage.
     }
