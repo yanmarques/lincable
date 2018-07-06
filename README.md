@@ -1,12 +1,14 @@
-# Lincable
+# Lincable 
 [![Build Status](https://travis-ci.org/yanmarques/lincable.svg?branch=dev)](https://travis-ci.org/yanmarques/lincable)
  [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yanmarques/lincable/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/yanmarques/lincable/?branch=dev) 
- 
-Storage manager for laravel Eloquent.
 
-# Why Lincable?
+Create a link with Eloquent to an uploaded file and manage storing this file in some cloud storage. :cloud:
 
-How do you manage storing uploaded files with dynamic link generation on some cloud storage? And when you need also to relate this file with a model on your database? When storing files on a dedicated server, like Amazon for example, we have to specify the path where the object will be stored, which is the same for further access. This can get a little tricky when you have multiple definitions on the link, like IDs, timestamps, hash, etc...  
+# Why this?
+
+My goal is to design a package to handle the file upload, link the model with the uploaded file and then store the file on the cloud. The url has customizable formatters to execute some logic when generating the url, but you can create your own. When creating the model or uploading the file to cloud storage, we are not free of errors, so the creation and upload are covered to register unexpected behaviours and rollback taks.  
+
+![Database lik image](https://www.designbombs.com/wp-content/uploads/2016/04/database-connection-1024x425.jpg)
 
 ## Proposals
 
@@ -20,9 +22,35 @@ Sounds nice? Let's develop this! :smile:
 
 ## Basic Usage
 
-You must register how do you want the link will be generated for your model. By default the url accepts dynamic parameters with a colon and the formatter name (see [#formatters]) or the model attribute.  
+You will specify what type of data type to be uploaded and create the model from it. The preview will be auto generated based on url configuration.
 
-The configuration file ```config/lincable.php```.
+```php
+
+public function upload(ImageFilRequest $imageUploaded) {
+    $image = \App\Image::createFromFileRequest($imageUploaded);
+    $image->id; // 1
+    $image->filename; // profile.jpg
+    $image->preview; // https://your-cloud-storage.com/your/path/1/profile.jpg
+}
+
+```
+
+# Getting Started
+
+## Installing
+
+You can install using composer:
+```bash
+$ composer require yanmarques/lincable
+```
+
+> *Note: For now the package is not configured with Laravel as we are in development process. All you can do is to test.
+> The usage described below is experimental and can change over the time*. 
+
+The first step is to register the url for your model on `config/lincable.php`. By default, the url has dynamic parameters to allow you to execute some logic when generating the url. To specify a dynamic parameter we just type a colon on the start of the parameter and voilá (see [parsers and formatters](#parsers-and-formatters)). For now, we can register the schema of how the url will be generated for the model. 
+
+Suppose we have an `Image` model with an ID and filename attributes. We have configurated the url to change the `:id` and `:filename` to the same attributes value in model. 
+
 ```php
 
 return [
@@ -35,36 +63,37 @@ return [
 
 ```
 
-Now we have a controller to upload an image from user and save the image on some cloud storage, and also create a link with the model and the file.
+Now we create the controller to handle the upload. Laravel uses the containter dependency injection to auto resolve methods arguments, the controller method registered on route has this definition as well, then we can put the file request we want to receive from on controller method. 
 
 ```php
+
 public function upload(ImageFilRequest $imageUploaded) {
     $image = \App\Image::createFromFileRequest($imageUploaded);
     $image->id; // 1
     $image->filename; // profile.jpg
     $image->preview; // https://your-cloud-storage.com/your/path/1/profile.jpg
 }
+
 ```
 
-The ```ImageFileRequest``` is the class to declarative perfom commom tasks for uploaded files and allow us to modify the image as we want before actually uploading it to the cloud. 
-
-The ```rules``` method must be implemented, to validate the file. See laravel [validations](https://laravel.com/docs/5.6/validation#rule-mimes).
+The ```ImageFileRequest``` is the class to handle the file uploaded. It extends from the `FileRequest` abstract class that actually handles the validation and configuration on file. When the request with the file comes, we try to load the file from class name, in this case the file parameter would be `image`. The good thing about using the file request on controller method is that we define what kind of data we expect on upload. The only abstract method to implement is the `rules`, to validate the file. The `image` attribute on request must be validate the rules. See laravel [validations](https://laravel.com/docs/5.6/validation#rule-mimes). But others methods are available to customize how to perform the uplaod. See [FileRequest](#filerequest).
 
 ```php
 
 use Illuminate\Http\UploadedFile;
+use Lincable\Http\
 use Symfony\Component\HttpFoundation\File\File;
 
-public class ImageFileRequest extends FileRequest
+class ImageFileRequest extends FileRequest
 {
     public function rules(UploadedFile $file) 
     {
         return [
-             'mimes:jpeg,bmp,png'
+             'required|mimes:jpeg,bmp,png'
         ];
     }
     
-    public function beforeSend(File $file)
+    public function boforeSend(File $file)
     {
         // Make file operations before send it to storage.
     }
@@ -72,7 +101,21 @@ public class ImageFileRequest extends FileRequest
 
 ```
 
-The ```image``` attribute on request must be validate the rules.
+# Parsers and Formatters
+
+Comming soon...
+
+# Formatters
+
+Comming soon...
+
+# Testing
+
+We make the world a better place with tests :octocat:
+
+```bash
+$ ./vendor/php/unit
+```
 
 # License
 
