@@ -82,7 +82,7 @@ The ```ImageFileRequest``` is the class to handle the file uploaded. It extends 
 use Illuminate\Http\UploadedFile;
 use Symfony\Component\HttpFoundation\File\File;
 
-public class ImageFileRequest extends FileRequest
+class ImageFileRequest extends FileRequest
 {
     public function rules(UploadedFile $file) 
     {
