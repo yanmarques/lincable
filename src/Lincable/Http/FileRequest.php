@@ -46,7 +46,7 @@ abstract class FileRequest
      * @param  \Illuminate\Http\UploadedFile $file
      * @return mixed
      */
-    abstract protected function rules(UploadedFile $file): mixed;
+    abstract protected function rules(UploadedFile $file);
 
     /**
      * Boot the instance with the request.
