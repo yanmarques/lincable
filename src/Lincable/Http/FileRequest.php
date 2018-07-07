@@ -46,7 +46,7 @@ abstract class FileRequest
      * @param  \Illuminate\Http\UploadedFile $file
      * @return mixed
      */
-    abstract protected function rules(UploadedFile $file);
+    abstract protected function rules();
 
     /**
      * Boot the instance with the request.
@@ -146,9 +146,9 @@ abstract class FileRequest
      * @param  \Illuminate\Http\UploadedFile $file
      * @return array
      */
-    protected function parseValidationRules(UploadedFile $file)
+    protected function parseValidationRules()
     {
-        return [$this->getParameter() => $this->rules($file)];
+        return [$this->getParameter() => $this->rules()];
     }
 
     /**
