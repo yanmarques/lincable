@@ -134,6 +134,21 @@ $url = ':customLocation/:filename';
 
 ```
 
+# UrlGenerator
+
+The url generator can compile the model url injecting the model attributes on the url parameters. This class is responsable for the dynamic generation of the url using the a compiler, parsers and the url configuration. 
+
+```php
+
+$file->id; // 123
+$file->name; // foo.zip
+$urlConf = new UrlConf;
+$urlConf->push(File::class, ':year/:month/:id/:name');
+$generator = new UrlGenerator($urlCompiler, $parsers, $urlConf);
+$generator->forModel($file)->generate(); // '2018/07/123/foo.zip'
+
+```
+
 # Testing
 
 We make the world a better place with tests :octocat:
