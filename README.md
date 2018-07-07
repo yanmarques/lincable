@@ -80,22 +80,21 @@ The ```ImageFileRequest``` is the class to handle the file uploaded. It extends 
 
 ```php
 
-use Illuminate\Http\UploadedFile;
-use Lincable\Http\
-use Symfony\Component\HttpFoundation\File\File;
+use Lincable\Http\FileRequest;
 
 class ImageFileRequest extends FileRequest
 {
-    public function rules(UploadedFile $file) 
+    public function rules() 
     {
         return [
              'required|mimes:jpeg,bmp,png'
         ];
     }
     
-    public function boforeSend(File $file)
+    public function boforeSend($file)
     {
         // Make file operations before send it to storage.
+        // You can return a new file here.
     }
 }
 
@@ -103,11 +102,37 @@ class ImageFileRequest extends FileRequest
 
 # Parsers and Formatters
 
-Comming soon...
+To allow dynamic parameters on the url we must provide a Parser class to define how the parameters will be presented on the url. There is no only way, you should create your own. By default we provide the `\Lincable\Parsers\ColonParser` which is a parser implementation for parameters beginning with a colon, very simple. Parsers just extract dynamic parameters from parts of the url, but the formatter that really execute the parameter logic. By default we add some formatters for the colon parser:
 
-# Formatters
+* `year`: Returns the current year.
+* `month`: Returns the current month.
+* `day`: Returns the current day.
+* `random`: Returns a random string of 32 length.
+* `timestamps`: Returns the hashed current UNIX timestamp.
 
-Comming soon...
+The parser allows you to pass parameters for the formatter using the regex pattern to split the matches. You can also pass an anonymous function to the parser with a class dependency, and the container will resolve the class instance.
+
+Suppose we want to store a file in diferente locations depending on a token or id on the request. We can create a formatter to execute this task with the request.
+```php
+
+$colonParser->addFormatter(function (Request $request) {
+    if ($request->user()->isBoss()) {
+        return 'boss-location';
+    }
+    
+    return 'foo';
+}, 'customLocation');
+
+$url = ':customLocation/:filename';
+
+// Is user on request is the boss.
+'boss-location/dqiojqwdij.zip'
+
+
+// The user on request is not the boss.
+'foo/dqiojqwdij.zip';
+
+```
 
 # Testing
 
