@@ -43,7 +43,6 @@ abstract class FileRequest
     /**
      * Rules to validate the file on request.
      *
-     * @param  \Illuminate\Http\UploadedFile $file
      * @return mixed
      */
     abstract protected function rules();
@@ -58,7 +57,10 @@ abstract class FileRequest
     {
         $this->request = $request;
 
-        $this->guardFile($request->file($this->getParameter()));
+        // Guard the file through validations.
+        $this->validate();
+        
+        $this->file = $request->file($this->getParameter());
 
         $this->booted = true;
     }
@@ -106,9 +108,20 @@ abstract class FileRequest
     {
         $file = $this->moveFileToTempDirectory();
 
-        $this->executeFileEvents($app, $file);
+        return $this->executeFileEvents($app, $file);
+    }
 
-        return $file;
+    /**
+     * Validate the file with the defined rules.
+     * 
+     * @return void
+     */
+    public function validate()
+    {
+        $validationRules = $this->parseValidationRules();
+
+        // Validate the request file from rules.
+        $this->request->validate($validationRules);
     }
 
     /**
@@ -119,31 +132,13 @@ abstract class FileRequest
     protected function getParameter()
     {
         $className = static::class;
-
-        return $this->nameFromClass($className);
-    }
-
-    /**
-     * Guard the file through validations and then set
-     * the file on class instance.
-     *
-     * @param  \Illuminate\Http\UploadedFile $file
-     * @return void
-     */
-    protected function guardFile(UploadedFile $file)
-    {
-        $validationRules = $this->parseValidationRules($file);
-
-        // Validate the request file from rules.
-        $this->request->validate($validationRules);
-
-        $this->file = $file;
+        
+        return $this->nameFromClass($className, 'FileRequest');
     }
 
     /**
      * Get the rules for the file validation.
      *
-     * @param  \Illuminate\Http\UploadedFile $file
      * @return array
      */
     protected function parseValidationRules()
@@ -181,8 +176,8 @@ abstract class FileRequest
             // Handle the result from event call.
             if ($result =  $app->call($callable, [$file])) {
                 return $result;
+            }
         }
-    }
 
         return $file;
     }
