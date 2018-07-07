@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Factory;
 use Illuminate\Container\Container;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Translation\Translator;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Validation\ValidationException;
@@ -114,12 +115,13 @@ class FileRequest extends TestCase
     {
         $text = $this->getRandom('txt');
         $request = $this->createRequest('foo', $text, 50);
-        $destination = '/home/yanmarques/Documents/';
+        $destination = str_finish('/tmp/'.str_random(), '/');
         $foo = new FooFileRequest($destination);
         $foo->boot($request);
         $file = $foo->prepareFile(new Container);
         $expected = $destination.$file->getFilename();
         $this->assertEquals($expected, $file->getPathName());
+        (new Filesystem)->deleteDirectory($destination);
     }
 
     /**
