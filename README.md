@@ -20,6 +20,16 @@ My goal is to design a package to handle the file upload, link the model with th
 
 Sounds nice? Let's develop this! :smile:
 
+# Table Of Contents
+
+* [Basic Usage](#basic-usage)
+* [Getting Started](#getting-started)
+    - [Installing](#installing)
+    - [Parsers and Formatters](#parsers-and-formatters)
+    - [UrlGenerator](#urlgenerator)
+* [Testing](#testing)
+* [Lincese](#lincese)
+
 ## Basic Usage
 
 You will specify what type of data type to be uploaded and create the model from it. The preview will be auto generated based on url configuration.
@@ -101,7 +111,7 @@ class ImageFileRequest extends FileRequest
 
 ```
 
-# Parsers and Formatters
+## Parsers and Formatters
 
 To allow dynamic parameters on the url we must provide a Parser class to define how the parameters will be presented on the url. There is no only way, you should create your own. By default we provide the `\Lincable\Parsers\ColonParser` which is a parser implementation for parameters beginning with a colon, very simple. Parsers just extract dynamic parameters from parts of the url, but the formatter that really execute the parameter logic. By default we add some formatters for the colon parser:
 
@@ -135,7 +145,7 @@ $url = ':customLocation/:filename';
 
 ```
 
-# UrlGenerator
+## UrlGenerator
 
 The url generator can compile the model url injecting the model attributes on the url parameters. This class is responsable for the dynamic generation of the url using the a compiler, parsers and the url configuration. 
 
