@@ -39,10 +39,11 @@ public function upload(ImageFilRequest $imageUploaded) {
 
 ## Installing
 
-You can install using composer:
+You can install cloning the project with git:
 ```bash
-$ composer require yanmarques/lincable
+$ git clone git@github.com:yanmarques/lincable.git
 ```
+Or you can just download the binaries [releases](https://github.com/yanmarques/lincable/releases).
 
 > *Note: For now the package is not configured with Laravel as we are in development process. All you can do is to test.
 > The usage described below is experimental and can change over the time*. 
