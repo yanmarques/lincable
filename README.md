@@ -165,7 +165,7 @@ $generator->forModel($file)->generate(); // '2018/07/123/foo.zip'
 We make the world a better place with tests :octocat:
 
 ```bash
-$ ./vendor/php/unit
+$ ./vendor/bin/phpunit
 ```
 
 # License
