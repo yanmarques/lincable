@@ -170,24 +170,20 @@ abstract class FileRequest
      *
      * @param  \Illuminate\Contracts\Container\Container $app
      * @param  \Symfony\Component\HttpFoundation\File\File $file
-     * @return void
+     * @return mixed
      */
     protected function executeFileEvents(Container $app, File $file)
     {
-        $eventMethod = 'beforeSend';
+        $callable = [$this, 'beforeSend'];
 
-        if (method_exists($this, $eventMethod)) {
-            $app->call([$this, $eventMethod], $file);
+        if (method_exists($callable[0], $callable[1])) {
+
+            // Handle the result from event call.
+            if ($result =  $app->call($callable, [$file])) {
+                return $result;
         }
     }
 
-    /**
-     * Return the class suffix convention.
-     *
-     * @return string
-     */
-    protected function getSuffix()
-    {
-        return class_basename(__CLASS__);
+        return $file;
     }
 }
