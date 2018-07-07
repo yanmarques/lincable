@@ -158,9 +158,9 @@ abstract class FileRequest
      */
     protected function moveFileToTempDirectory()
     {
-        $destination = $this->file->hashName($this->tempDirectory);
+        $destination = $this->file->hashName();
 
-        return $this->file->move($destination);
+        return $this->file->move($this->tempDirectory, $destination);
     }
 
     /**
