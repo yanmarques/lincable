@@ -2,12 +2,17 @@
 
 namespace Tests\Lincable\Http;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\TestCase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Factory;
 use Illuminate\Container\Container;
 use Illuminate\Translation\Translator;
 use Illuminate\Translation\ArrayLoader;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\File\File;
+use Lincable\Http\FileRequest as BaseFileRequest;
 
 class FileRequest extends TestCase
 {
@@ -26,69 +31,120 @@ class FileRequest extends TestCase
      *
      * @return void
      */
-    public function testThatBootSetTheRequestAndGetFileFromRequest()
+    public function testThatBootSetTheRequest()
     {
-        $request = $this->createRequest('foo', $this->getPngFile());
-        $fooFile = $this->createFileRequest('png');
-        dd($fooFile->getSuffix());
-        $fooFile->boot($request);
-        
+        $request = $this->createRequest('image', $this->getRandom('png'));
+        $image = new ImageFileRequest;
+        $image->boot($request);
+
         // Assert the request on foo file.
         $this->assertEquals(
             $request,
-            $fooFile->getRequest()
+            $image->getRequest()
         );
     }
 
     /**
-     * Return an instance of the file request to only accept
-     * the given extension.
+     * Should return the file sent on request.
      *
+     * @return void
+     */
+    public function testThatBootSetThePngFile()
+    {
+        $png = $this->getRandom('png');
+        $request = $this->createRequest('image', $png);
+        $image = new ImageFileRequest;
+        $image->boot($request);
+        
+        // Assert the request on foo file.
+        $this->assertEquals(
+            $png,
+            $image->getFile()->name
+        );
+    }
+
+    /**
+     * Should return true method on isBooted after has booted.
+     * 
+     * @return void
+     */
+    public function testThatIsBootedReturnTrueAfterBoot()
+    {
+        $png = $this->getRandom('png');
+        $request = $this->createRequest('image', $png);
+        $image = new ImageFileRequest;
+        $image->boot($request);
+        $this->assertTrue($image->isBooted());
+    }
+
+    /**
+     * Should return false method on isBooted.
+     * 
+     * @return void
+     */
+    public function testThatIsBootedReturnFalseAfterBoot()
+    {
+        $png = $this->getRandom('png');
+        $request = $this->createRequest('image', $png);
+        $image = new ImageFileRequest;
+        $this->assertFalse($image->isBooted());
+    }
+
+    /**
+     * Should throw a validation exception for invalid file mimetype.
+     * 
+     * @return void
+     */
+    public function testThatBootThrowsAValidationException()
+    {
+        $invalidFile = $this->getRandom('xyz');
+        $request = $this->createRequest('image', $invalidFile);
+        $image = new ImageFileRequest;
+        $this->expectException(ValidationException::class);
+        $image->boot($request);
+    }
+
+    /**
+     * Should move the file to another location before
+     * sending it, when prepareFile is called.
+     * 
+     * @return void
+     */
+    public function testThatBeforeSendChangesTheFile()
+    {
+        $text = $this->getRandom('txt');
+        $request = $this->createRequest('foo', $text, 50);
+        $destination = '/home/yanmarques/Documents/';
+        $foo = new FooFileRequest($destination);
+        $foo->boot($request);
+        $file = $foo->prepareFile(new Container);
+        $expected = $destination.$file->getFilename();
+        $this->assertEquals($expected, $file->getPathName());
+    }
+
+    /**
+     * Return a random filename with and extension.
+     * 
      * @param  string $extension
-     * @return \Tests\Lincable\Http\FooFileRequest
-     */
-    public function createFileRequest(string $extension)
-    {
-        FooFileRequest::setExtension($extension);
-        return new FooFileRequest;
-    }
-
-    /**
-     * Return the png file.
-     *
      * @return string
      */
-    public function getPngFile()
+    public function getRandom(string $extension)
     {
-        return __DIR__.'/resources/1.png';
-    }
-
-    /**
-     * Return the jpg file.
-     *
-     * @return string
-     */
-    public function getJpgFile()
-    {
-        return __DIR__.'/resources/2.jpg';
+        return sprintf('%s.%s', Str::random(), $extension);
     }
 
     /**
      * Create an HTTP request instance with a file
      *
      * @param  string $file
+     * @param  string $originalName
+     * @param  int    $kiloBytes
      * @return \Illuminate\Http\Request
      */
-    public function createRequest(string $name, string $file)
+    public function createRequest(string $file, string $originalName, int $kiloBytes = 0)
     {
         $request =  Request::capture();
-        $request->files->set($name, [
-            'error' => null,
-            'name' => $file,
-            'size' => null,
-            'tmp_name' => $file,
-            'type' => pathinfo($file, PATHINFO_EXTENSION)
-        ]);
+        $request->files->set($file, UploadedFile::fake()->create($originalName, $kiloBytes));
         return $request;
     }
 
@@ -109,5 +165,59 @@ class FileRequest extends TestCase
         Request::macro('validate', function (array $rules) {
             return $this->makeValidator()->validate($this->all(), $rules);
         });
+    }
+}
+
+class ImageFileRequest extends BaseFileRequest
+{
+    /**
+     * Rules to validate the file on request.
+     *
+     * @return mixed
+     */
+    protected function rules()
+    {
+        return 'mimes:png,jpg';
+    }
+}
+
+class FooFileRequest extends BaseFileRequest
+{
+    /**
+     * File to move the file before send.
+     * 
+     * @var string
+     */
+    private $destination;
+
+    /**
+     * 
+     * 
+     * @param  string $file
+     * @return void
+     */
+    public function __construct(string $destination)
+    {
+        $this->destination = $destination;
+    }
+
+    /**
+     * Rules to validate the file on request.
+     *
+     * @return mixed
+     */
+    protected function rules()
+    {
+        return 'mimes:txt';
+    }
+
+    /**
+     * Executed before sending the file.
+     * 
+     * @return mixed
+     */
+    public function beforeSend($file)
+    {
+        return $file->move($this->destination);
     }
 }
