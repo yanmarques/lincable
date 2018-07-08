@@ -4,6 +4,16 @@
 
 Create a link with Eloquent to an uploaded file and manage storing this file in some cloud storage. :cloud:
 
+# Table Of Contents
+
+* [Basic Usage](#basic-usage)
+* [Getting Started](#getting-started)
+    - [Installing](#installing)
+    - [Parsers and Formatters](#parsers-and-formatters)
+    - [UrlGenerator](#urlgenerator)
+* [Testing](#testing)
+* [Lincese](#lincese)
+
 # Why this?
 
 My goal is to design a package to handle the file upload, link the model with the uploaded file and then store the file on the cloud. The url has customizable formatters to execute some logic when generating the url, but you can create your own. When creating the model or uploading the file to cloud storage, we are not free of errors, so the creation and upload are covered to register unexpected behaviours and rollback taks.  
@@ -19,16 +29,6 @@ My goal is to design a package to handle the file upload, link the model with th
 * Support for receiving a file request class on controller action, and attaching it to a model.
 
 Sounds nice? Let's develop this! :smile:
-
-# Table Of Contents
-
-* [Basic Usage](#basic-usage)
-* [Getting Started](#getting-started)
-    - [Installing](#installing)
-    - [Parsers and Formatters](#parsers-and-formatters)
-    - [UrlGenerator](#urlgenerator)
-* [Testing](#testing)
-* [Lincese](#lincese)
 
 ## Basic Usage
 
