@@ -10,7 +10,7 @@ if (! function_exists('config')) {
      */
     function config(string $key, $default = null)
     {
-        $file = dirname(dirname(dirname(__DIR__))).'/config/lincable.php';
+        $file = dirname(__DIR__).'/config/lincable.php';
         $configuration = require $file;
         return data_get(['lincable' => $configuration], $key) ?: $default;
     }

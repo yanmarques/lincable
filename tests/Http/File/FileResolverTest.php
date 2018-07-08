@@ -13,12 +13,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class FileResolverTest extends TestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-        include 'helpers.php';
-    }
-
     /**
      * Should resolve a string file.
      * 
