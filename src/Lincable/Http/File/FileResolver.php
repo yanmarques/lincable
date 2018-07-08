@@ -2,6 +2,7 @@
 
 namespace Lincable\Http\File;
 
+use Lincable\Http\FileRequest;
 use Illuminate\Container\Container;
 use Illuminate\Http\File as IlluminateFile;
 use Lincable\Exceptions\NotResolvableFileException;
