@@ -36,8 +36,7 @@ class FileResolver
             case $file instanceof IlluminateFile:
                 return $file;
                 break; 
-            case $file instanceof Symfonyfile:
-                break;
+            case $file instanceof Symfonyfile: break;
             default:
                 throw new NotResolvableFileException($file);
         }
