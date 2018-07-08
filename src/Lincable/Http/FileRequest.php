@@ -34,13 +34,6 @@ abstract class FileRequest
     protected $booted = false;
 
     /**
-     * The directory where the uploaded file will be temporary moved.
-     *
-     * @var string
-     */
-    protected $tempDirectory = '/tmp';
-
-    /**
      * Rules to validate the file on request.
      *
      * @return mixed
@@ -154,8 +147,8 @@ abstract class FileRequest
     protected function moveFileToTempDirectory()
     {
         $destination = $this->file->hashName();
-
-        return $this->file->move($this->tempDirectory, $destination);
+        
+        return $this->file->move(config('lincable.temp_directory'), $destination);
     }
 
     /**
