@@ -32,20 +32,23 @@ return [
     |
     */
     
-    'root' => env('LINCABLE_ROOT', 'media'),
+    'root' => env('LINCABLE_ROOT'),
 
     /*
     |--------------------------------------------------------------------------
-    | Models Paths
+    | Models Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you configure where the models namespace will be loaded from when using 
-    | dot notation to specify the model. This configuration can be usefull for 
-    | shorthand path.
+    | Here you configure the model basic configuration. This should be changed 
+    | in case you will not use this, otherwise will help you on the url conf
+    | with namespace shorthand and the field on model to save the link. 
     |
     */
 
-    'models' => 'App\Models',
+    'models' => [
+        'namespace' => 'App',
+        'url_field' => 'preview'
+    ],
 
     /*
     |--------------------------------------------------------------------------
