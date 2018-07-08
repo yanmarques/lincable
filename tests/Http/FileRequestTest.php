@@ -2,31 +2,15 @@
 
 namespace Tests\Lincable\Http;
 
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use PHPUnit\Framework\TestCase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Validation\Factory;
+use Tests\Lincable\TestCase;
+use Lincable\Http\FileRequest;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Translation\Translator;
-use Illuminate\Translation\ArrayLoader;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\File\File;
-use Lincable\Http\FileRequest as BaseFileRequest;
 
-class FileRequest extends TestCase
+class FileRequestTest extends TestCase
 {
-    /**
-     * Set the test configuration.
-     *
-     * @return void
-     */
-    public function setUp()
-    {
-        $this->registerRequestValidateMacro();
-    }
-
     /**
      * Should boot the file request with the request with an file.
      *
@@ -34,14 +18,12 @@ class FileRequest extends TestCase
      */
     public function testThatBootSetTheRequest()
     {
-        $request = $this->createRequest('image', $this->getRandom('png'));
-        $image = new ImageFileRequest;
-        $image->boot($request);
+        $fileRequest = $this->createFileRequest('png');
 
         // Assert the request on foo file.
-        $this->assertEquals(
-            $request,
-            $image->getRequest()
+        $this->assertInstanceOf(
+            Request::class,
+            $fileRequest->getRequest()
         );
     }
 
@@ -53,14 +35,14 @@ class FileRequest extends TestCase
     public function testThatBootSetThePngFile()
     {
         $png = $this->getRandom('png');
-        $request = $this->createRequest('image', $png);
-        $image = new ImageFileRequest;
-        $image->boot($request);
+        $request = $this->createRequest('file', $png);
+        $file = $this->createFileRequest('png', false);
+        $file->boot($request);
         
         // Assert the request on foo file.
         $this->assertEquals(
             $png,
-            $image->getFile()->name
+            $file->getFile()->name
         );
     }
 
@@ -71,11 +53,8 @@ class FileRequest extends TestCase
      */
     public function testThatIsBootedReturnTrueAfterBoot()
     {
-        $png = $this->getRandom('png');
-        $request = $this->createRequest('image', $png);
-        $image = new ImageFileRequest;
-        $image->boot($request);
-        $this->assertTrue($image->isBooted());
+        $fileRequest = $this->createFileRequest('txt');
+        $this->assertTrue($fileRequest->isBooted());
     }
 
     /**
@@ -85,10 +64,8 @@ class FileRequest extends TestCase
      */
     public function testThatIsBootedReturnFalseAfterBoot()
     {
-        $png = $this->getRandom('png');
-        $request = $this->createRequest('image', $png);
-        $image = new ImageFileRequest;
-        $this->assertFalse($image->isBooted());
+        $fileRequest = $this->createFileRequest('txt', false);
+        $this->assertFalse($fileRequest->isBooted());
     }
 
     /**
@@ -99,10 +76,10 @@ class FileRequest extends TestCase
     public function testThatBootThrowsAValidationException()
     {
         $invalidFile = $this->getRandom('xyz');
-        $request = $this->createRequest('image', $invalidFile);
-        $image = new ImageFileRequest;
+        $request = $this->createRequest('file', $invalidFile);
+        $fileRequest = $this->createFileRequest('png', false);
         $this->expectException(ValidationException::class);
-        $image->boot($request);
+        $fileRequest->boot($request);
     }
 
     /**
@@ -114,7 +91,7 @@ class FileRequest extends TestCase
     public function testThatBeforeSendChangesTheFile()
     {
         $text = $this->getRandom('txt');
-        $request = $this->createRequest('foo', $text, 50);
+        $request = $this->createRequest('foo', $text);
         $destination = str_finish('/tmp/'.str_random(), '/');
         $foo = new FooFileRequest($destination);
         $foo->boot($request);
@@ -124,66 +101,9 @@ class FileRequest extends TestCase
         (new Filesystem)->deleteDirectory($destination);
     }
 
-    /**
-     * Return a random filename with and extension.
-     * 
-     * @param  string $extension
-     * @return string
-     */
-    public function getRandom(string $extension)
-    {
-        return sprintf('%s.%s', Str::random(), $extension);
-    }
-
-    /**
-     * Create an HTTP request instance with a file
-     *
-     * @param  string $file
-     * @param  string $originalName
-     * @param  int    $kiloBytes
-     * @return \Illuminate\Http\Request
-     */
-    public function createRequest(string $file, string $originalName, int $kiloBytes = 0)
-    {
-        $request =  Request::capture();
-        $request->files->set($file, UploadedFile::fake()->create($originalName, $kiloBytes));
-        return $request;
-    }
-
-    /**
-     * Register the macro functions on request for validation.
-     *
-     * @return void
-     */
-    protected function registerRequestValidateMacro()
-    {
-        Request::macro('makeValidator', function () {
-            $loader = new ArrayLoader;
-            $translator = new Translator($loader, 'eng-us');
-            $app = new Container;
-            return new Factory($translator, $app);
-        });
-
-        Request::macro('validate', function (array $rules) {
-            return $this->makeValidator()->validate($this->all(), $rules);
-        });
-    }
 }
 
-class ImageFileRequest extends BaseFileRequest
-{
-    /**
-     * Rules to validate the file on request.
-     *
-     * @return mixed
-     */
-    protected function rules()
-    {
-        return 'mimes:png,jpg';
-    }
-}
-
-class FooFileRequest extends BaseFileRequest
+class FooFileRequest extends FileRequest
 {
     /**
      * File to move the file before send.
