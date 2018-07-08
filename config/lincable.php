@@ -1,12 +1,5 @@
 <?php
 
-use Lincable\Parsers\ColonParser;
-use Lincable\Formatters\DayFormatter;
-use Lincable\Formatters\YearFormatter;
-use Lincable\Formatters\MonthFormatter;
-use Lincable\Formatters\RandomFormatter;
-use Lincable\Formatters\TimestampsFormatter;
-
 return [
 
     /*
@@ -67,24 +60,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Parsers
+    | Custom Parsers
     |--------------------------------------------------------------------------
     |
-    | Here you register the parsers for compiling the url. The parsers can match
-    | a given pattern on url path parameter, and execute some logic to return
-    | some expected behavior. Tecnically the parser just create the logic to match
-    | dynamic parameters and add dynamic arguments. But the formatter class that
-    | really executes the logic.
+    | Here you register your custom parsers for compiling the url. The parsers can 
+    | match a given pattern on url path parameter, and execute some logic to return
+    | some expected behavior. 
     | 
     */
 
     'parsers' => [
-        ColonParser::class => [
-            YearFormatter::class,
-            DayFormatter::class,
-            MonthFormatter::class,
-            RandomFormatter::class,
-            TimestampsFormatter::class
+        // 
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Parsers
+    |--------------------------------------------------------------------------
+    |
+    | Here will be the default parsers loaded from media manager. The default parser
+    | is the colon parser with the already provided formatters. This is the default
+    | configuration for running lincable, althought you are able to change this
+    | to fit your requirements.
+    | 
+    */
+
+    'default_parsers' => [
+        \Lincable\Parsers\ColonParser::class => [
+            \Lincable\Formatters\YearFormatter::class,
+            \Lincable\Formatters\DayFormatter::class,
+            \Lincable\Formatters\MonthFormatter::class,
+            \Lincable\Formatters\RandomFormatter::class,
+            \Lincable\Formatters\TimestampsFormatter::class
         ]
     ]
 ];
