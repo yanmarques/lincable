@@ -14,11 +14,13 @@ return [
     | Cloud
     |--------------------------------------------------------------------------
     |
-    | Here you register the default cloud driver used store the files. 
+    | Here you register the default cloud driver used store the files. By default
+    | if this configuration is not present, we will use the default filesystem
+    | driver, which will read from flysystem configuration. 
     |
     */
 
-    's3',
+    'disk' => 's3',
 
     /*
     |--------------------------------------------------------------------------
