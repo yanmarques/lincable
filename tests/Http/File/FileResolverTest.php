@@ -49,10 +49,9 @@ class FileResolverTest extends TestCase
         $pathname = $fileRequest->getFile()->getPathname();
         $expected = str_random();
         file_put_contents($pathname, $expected);
-        $result = FileResolver::resolve($pathname);
+        $result = FileResolver::resolve($fileRequest);
         $this->assertInstanceOf(File::class, $result);
         $this->assertEquals($expected, file_get_contents($result->path()));
-        unlink($pathname);
     }
 
     /**

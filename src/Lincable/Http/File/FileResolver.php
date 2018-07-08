@@ -27,7 +27,7 @@ class FileResolver
                 $file = new SymfonyFile($file);
                 break;
             case $file instanceof FileRequest:
-                $file = $file->preprareFile(Container::getInstance());
+                $file = $file->prepareFile(Container::getInstance());
                 break;
             case $file instanceof UploadedFile:
                 $filename = $file->hashName();
