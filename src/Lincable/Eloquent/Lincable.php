@@ -2,6 +2,10 @@
 
 namespace Lincable\Eloquent;
 
+use Lincable\MediaManager;
+use Illuminate\Container\Container;
+use Lincable\Http\File\FileResolver;
+
 trait Lincable
 {
     /**
@@ -21,24 +25,45 @@ trait Lincable
      * 
      * @return void
      */
-    public function addLincableFields()
+    public function addLincableField()
     {
-        $this->fillable(array_merge( 
-            $this->getFillable(),
-            $this->getLincableFields()
-        ));
+        // Get the model fillable fields.
+        $fillables = $this->getFillable();
+
+        $this->fillable(array_merge($fillables, [$this->getUrlField()]));
     }
 
     /**
-     * Return the fields to link the model.
+     * Link the model to a file.
      * 
-     * @return array
+     * @param  mixed $file
+     * @return this
      */
-    public function getLincableFields()
+    public function link($file)
     {
-        return [
-            'preview',
-            'filename'
-        ];
+        // Resolve the file object to link the model. It can
+        // be a symfony uploaded file or a file request, which 
+        // is preferable for linking. 
+        $file = FileResolver::resolve($file);
+    }
+
+    /**
+     * Return the url field to link the model.
+     * 
+     * @return string
+     */
+    public function getUrlField()
+    {
+        return config('lincable.models.url_field');
+    }
+
+    /**
+     * Return a media manager instance.
+     * 
+     * @return \Lincable\MediaManager
+     */
+    protected function getMediaManager() 
+    {
+        return Container::getInstance()->make(MediaManager::class);
     }
 }
