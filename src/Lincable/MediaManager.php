@@ -10,42 +10,42 @@ class MediaManager
 {
     /**
      * The container implementation.
-     * 
+     *
      * @var \Illuminate\Contracts\Container\Container
      */
     protected $app;
 
     /**
      * The compiler implementation.
-     * 
+     *
      * @var \Illuminate\Contracts\Compilers\Compiler
      */
     protected $compiler;
 
     /**
      * The model url configuration.
-     * 
+     *
      * @var \Lincable\UrlConf
      */
     protected $urlConf;
 
     /**
      * The disk for file storage.
-     * 
+     *
      * @var \Illuminate\Contracts\Filesystem\Filesystem
      */
     protected $disk;
 
     /**
      * The collection with the url parsers.
-     * 
+     *
      * @var \Illuminate\Support\Collection
      */
     protected $parsers;
 
     /**
      * Create a new class instance.
-     * 
+     *
      * @param  \Illuminate\Contracts\Container\Container $app
      * @return void
      */
@@ -59,7 +59,7 @@ class MediaManager
 
     /**
      * Set the media url compiler.
-     * 
+     *
      * @param  \Illuminate\Contracts\Compilers\Compiler $compiler
      * @return this
      */
@@ -70,7 +70,7 @@ class MediaManager
 
     /**
      * Return the compiler class.
-     * 
+     *
      * @return \Illuminate\Contracts\Compilers\Compiler
      */
     public function getCompiler()
@@ -80,7 +80,7 @@ class MediaManager
 
     /**
      * Set the new disk to use.
-     * 
+     *
      * @param  string $disk
      * @return this
      */
@@ -92,7 +92,7 @@ class MediaManager
 
     /**
      * Set a root path for the urls.
-     * 
+     *
      * @param  string|null $root
      * @return this
      */
@@ -104,7 +104,7 @@ class MediaManager
 
     /**
      * Add a new parser to the manager.
-     * 
+     *
      * @param  mixed $parser
      * @param  mixed $formatters
      * @return this
@@ -130,7 +130,7 @@ class MediaManager
 
     /**
      * Return a url generator instance with the manager configuration.
-     * 
+     *
      * @return \Lincable\UrlGenerator
      */
     public function buildUrlGenerator()
@@ -140,10 +140,10 @@ class MediaManager
 
     /**
      * Read the configuration from container.
-     * 
+     *
      * @return void
      */
-    protected function readConfig() 
+    protected function readConfig()
     {
         $this->setRoot($this->getConfig('root'));
         
@@ -153,7 +153,7 @@ class MediaManager
             $this->getConfig('parsers', [])
         );
         
-        foreach($parsers as $parser => $formatters) {
+        foreach ($parsers as $parser => $formatters) {
             $this->addParser($parser, $formatters);
         }
         
@@ -163,39 +163,42 @@ class MediaManager
 
     /**
      * Return the configuration value.
-     * 
+     *
      * @param  string $key
      * @param  mixed  $default
      * @return mixed
      */
-    protected function getConfig(string $key, $default = null) 
+    protected function getConfig(string $key, $default = null)
     {
         return $this->app["config"]["lincable.{$key}"] ?: $default;
     }
 
     /**
      * Create a new url conf with a root url.
-     * 
+     *
      * @param  string|null $root
      * @return \Licable\UrlConf
      */
-    protected function createUrlConfWithRoot(string $root = null) 
+    protected function createUrlConfWithRoot(string $root = null)
     {
-        // Add the url configuration.  
-        $urls = $this->getConfig('urls', []);
+        // Create the url conf class.
         $urlConf = new UrlConf($this->getConfig('models.namespace'));
-         
-        foreach($urls as $model => $url) {
+
+        // Determine wheter should add a root url for each url in configuration.
+        $hasRoot = $root && $root !== '';
+
+        if ($hasRoot) {
+
+            // Trim backslashs from right part of string.
+            $root = rtrim('\/', $root);
+        }
+
+        // Add the url configuration.
+        foreach ($this->getConfig('urls', []) as $model => $url) {
             $url = str_start($url, '/');
-            
-            if ($root && $root !== '') {
 
-                // Prepend the root url on the url.
-                $url = rtrim('\/', $root).$url;
-            }
-
-            // Push the new mode url configuration.  
-            $urlConf->push($model, $url);
+            // Push the new mode url configuration.
+            $urlConf->push($model, $hasRoot ? $root.$url : $url);
         }
 
         return $urlConf;
