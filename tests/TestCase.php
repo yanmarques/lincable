@@ -11,6 +11,7 @@ use Illuminate\Container\Container;
 use Illuminate\Translation\Translator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Translation\ArrayLoader;
+use Illuminate\Events\EventServiceProvider;
 use Illuminate\Filesystem\FilesystemManager;
 use PHPUnit\Framework\TestCase as UnitTestCase;
 use Illuminate\Contracts\Container\Container as ContainerInterface;
@@ -25,6 +26,7 @@ class TestCase extends UnitTestCase
     public function setUp()
     {
         $this->registerRequestValidateMacro();
+        $this->registerEvents();
         $container = Container::getInstance();
         $container->bind('config', function () {
             return $this->getConfiguration();
@@ -155,6 +157,16 @@ class TestCase extends UnitTestCase
 
         // Rebind the filesystem instance.
         Container::getInstance()['filesystem'] = Storage::getFacadeRoot();
+    }
+
+    /**
+     * Register the events service provider.
+     *
+     * @return void
+     */
+    protected function registerEvents()
+    {
+        (new EventServiceProvider(Container::getInstance()))->register();
     }
 }
 
