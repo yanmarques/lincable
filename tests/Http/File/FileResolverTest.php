@@ -3,9 +3,11 @@
 namespace Tests\Lincable\Http\File;
 
 use Illuminate\Http\File;
+use Illuminate\Http\Request;
 use Tests\Lincable\TestCase;
 use Lincable\Http\FileRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Container\Container;
 use Lincable\Http\File\FileResolver;
 use Lincable\Exceptions\NotResolvableFileException;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
@@ -15,12 +17,12 @@ class FileResolverTest extends TestCase
 {
     /**
      * Should resolve a string file.
-     * 
+     *
      * @return void
      */
     public function testResolveWithValidPathname()
     {
-        $tempFile = '/tmp/'.$this->getRandom('txt'); 
+        $tempFile = '/tmp/'.$this->getRandom('txt');
         touch($tempFile);
         $result = FileResolver::resolve($tempFile);
         $this->assertInstanceOf(File::class, $result);
@@ -29,7 +31,7 @@ class FileResolverTest extends TestCase
 
     /**
      * Should throw a file not found exception.
-     * 
+     *
      * @return void
      */
     public function testResolveWithInvalidPathname()
@@ -40,7 +42,7 @@ class FileResolverTest extends TestCase
 
     /**
      * Should resolve a valid file request instance.
-     * 
+     *
      * @return void
      */
     public function testResolveWithValidFileRequest()
@@ -56,7 +58,7 @@ class FileResolverTest extends TestCase
 
     /**
      * Should move the uploaded file to a temporary location and return a illuminate file.
-     * 
+     *
      * @return void
      */
     public function testThatResolveWithUploadedFile()
@@ -70,12 +72,12 @@ class FileResolverTest extends TestCase
 
     /**
      * Should return the illuminate file from the symfony file.
-     * 
+     *
      * @return void
      */
     public function testThatResolveWithIlluminateFile()
     {
-        $tempFile = '/tmp/'.$this->getRandom('txt'); 
+        $tempFile = '/tmp/'.$this->getRandom('txt');
         touch($tempFile);
         $file = new SymfonyFile($tempFile);
         $result = FileResolver::resolve($file);
@@ -86,7 +88,7 @@ class FileResolverTest extends TestCase
 
     /**
      * Should throw an exception because object can not be resolved to a file.
-     * 
+     *
      * @return void
      */
     public function testThatResolveWithInvalidFile()
@@ -94,5 +96,20 @@ class FileResolverTest extends TestCase
         $invalidObject = new \stdClass;
         $this->expectException(NotResolvableFileException::class);
         FileResolver::resolve($invalidObject);
+    }
+
+    /**
+     * Should boot a file request not booted.
+     *
+     * @return void
+     */
+    public function testThatResolveWithNotBootedFileRequest()
+    {
+        $request = $this->createRequest('file', $this->getRandom('txt'));
+        Container::getInstance()->instance(Request::class, $request);
+        $fileRequest = $this->createFileRequest('txt', false);
+        $result = FileResolver::resolve($fileRequest);
+        $this->assertInstanceOf(File::class, $result);
+        $this->assertTrue($fileRequest->isBooted());
     }
 }
