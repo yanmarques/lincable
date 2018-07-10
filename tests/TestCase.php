@@ -126,6 +126,36 @@ class TestCase extends UnitTestCase
             'filesystems.default' => 'local'
         ]);
     }
+
+    /**
+     * Set a new configuration for application.
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @return void
+     */
+    protected function setConfig(string $key, $value)
+    {
+        $config = Container::getInstance()['config']->all();
+        data_set($config, $key, $value);
+        Container::getInstance()['config'] = new Repository($config);
+    }
+
+    /**
+     * Set the new disk to test.
+     *
+     * @param  string $disk
+     * @return void
+     */
+    protected function setDisk(string $disk)
+    {
+        $this->setConfig('lincable.disk', $disk);
+        Storage::setFacadeApplication(Container::getInstance());
+        Storage::fake($disk);
+
+        // Rebind the filesystem instance.
+        Container::getInstance()['filesystem'] = Storage::getFacadeRoot();
+    }
 }
 
 class FileFileRequest extends FileRequest
