@@ -4,28 +4,42 @@ namespace Tests\Lincable;
 
 use Illuminate\Http\Request;
 use Lincable\Http\FileRequest;
+use Illuminate\Config\Repository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Factory;
 use Illuminate\Container\Container;
 use Illuminate\Translation\Translator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Translation\ArrayLoader;
+use Illuminate\Filesystem\FilesystemManager;
 use PHPUnit\Framework\TestCase as UnitTestCase;
+use Illuminate\Contracts\Container\Container as ContainerInterface;
 
 class TestCase extends UnitTestCase
 {
-     /**
-     * Set the test configuration.
-     *
-     * @return void
-     */
+    /**
+    * Set the test configuration.
+    *
+    * @return void
+    */
     public function setUp()
     {
         $this->registerRequestValidateMacro();
+        $container = Container::getInstance();
+        $container->bind('config', function () {
+            return $this->getConfiguration();
+        });
+        $container->bind(ContainerInterface::class, Container::class);
+        $container->singleton('filesystem', function ($app) {
+            return new FilesystemManager($app);
+        });
+        Storage::setFacadeApplication($container);
+        Storage::fake('s3');
     }
 
     /**
      * Return a random filename with and extension.
-     * 
+     *
      * @param  string $extension
      * @return string
      */
@@ -50,7 +64,7 @@ class TestCase extends UnitTestCase
 
     /**
      * Create a image file request with the extension rule.
-     * 
+     *
      * @param  string $extension
      * @param  bool $boot
      * @return \Tests\Lincable\FileFileRequest
@@ -87,13 +101,38 @@ class TestCase extends UnitTestCase
             return $this->makeValidator()->validate($this->all(), $rules);
         });
     }
+
+    /**
+     * Return the repository configuration.
+     *
+     * @return \Illuminate\Config\Repository
+     */
+    protected function getConfiguration()
+    {
+        $configuration = require __DIR__.'/../config/lincable.php';
+        return new Repository([
+            'lincable' => $configuration,
+            'filesystems.disks.s3' => [
+                'driver' => 's3',
+                'key' => 'fake',
+                'secret' => 'fake',
+                'region' => 'fake',
+                'bucket' => 'fake',
+            ],
+            'filesystems.disks.local' => [
+                'driver' => 'local',
+                'root' => '/tmp'
+            ],
+            'filesystems.default' => 'local'
+        ]);
+    }
 }
 
 class FileFileRequest extends FileRequest
 {
     /**
      * The extension rule.
-     * 
+     *
      * @var string
      */
     public static $extension;
@@ -106,5 +145,5 @@ class FileFileRequest extends FileRequest
     protected function rules()
     {
         return 'mimes:'.static::$extension;
-    }        
+    }
 }
