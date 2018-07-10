@@ -2,8 +2,9 @@
 
 namespace Lincable;
 
+use Exception;
 use Lincable\Parsers\Parser;
-use Illuminate\Contracts\Compilers\Compiler;
+use Lincable\Contracts\Compilers\Compiler;
 use Illuminate\Contracts\Container\Container;
 
 class MediaManager
@@ -18,7 +19,7 @@ class MediaManager
     /**
      * The compiler implementation.
      *
-     * @var \Illuminate\Contracts\Compilers\Compiler
+     * @var \Lincable\Contracts\Compilers\Compiler
      */
     protected $compiler;
 
@@ -79,6 +80,26 @@ class MediaManager
     }
 
     /**
+     * Return the disk storage.
+     *
+     * @return \Illuminate\Contracts\Filesystem\Filesystem
+     */
+    public function getDisk()
+    {
+        return $this->disk;
+    }
+
+    /**
+     * Return the model url configuration.
+     *
+     * @return \Lincable\UrlConf
+     */
+    public function getUrlConf()
+    {
+        return $this->urlConf;
+    }
+
+    /**
      * Set the new disk to use.
      *
      * @param  string $disk
@@ -121,7 +142,7 @@ class MediaManager
             $type = gettype($parser);
 
             // Force the parser to be a Parser class.
-            throw new Exception("Parser must be a Lincable\Parsers\Parser, [{$type}] given.");
+            throw new Exception("Parser must be a {Parser::class}, [{$type}] given.");
         }
 
         $this->parsers->push($parser->addFormatters($formatters));
@@ -170,7 +191,7 @@ class MediaManager
      */
     protected function getConfig(string $key, $default = null)
     {
-        return $this->app["config"]["lincable.{$key}"] ?: $default;
+        return $this->app['config']["lincable.{$key}"] ?? $default;
     }
 
     /**
@@ -182,7 +203,7 @@ class MediaManager
     protected function createUrlConfWithRoot(string $root = null)
     {
         // Create the url conf class.
-        $urlConf = new UrlConf($this->getConfig('models.namespace'));
+        $urlConf = new UrlConf($this->getConfig('models.namespace', ''));
 
         // Determine wheter should add a root url for each url in configuration.
         $hasRoot = $root && $root !== '';
@@ -190,7 +211,7 @@ class MediaManager
         if ($hasRoot) {
 
             // Trim backslashs from right part of string.
-            $root = rtrim('\/', $root);
+            $root = rtrim($root, '\/');
         }
 
         // Add the url configuration.
