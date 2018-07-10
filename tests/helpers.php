@@ -29,3 +29,37 @@ if (! function_exists('storage_path')) {
         return '/tmp/';
     }
 }
+
+if (! function_exists('event')) {
+    /**
+     * Fire the given event with the registered dispatcher.
+     *
+     * @param  string|object  $event
+     * @param  mixed  $payload
+     * @param  bool  $halt
+     * @return void
+     */
+    function event()
+    {
+        Container::getInstance()['events']->fire(...func_get_args());
+    }
+}
+
+if (! function_exists('rescue')) {
+    /**
+     * Catch a potential exception and return a default value.
+     *
+     * @param  callable  $callback
+     * @param  mixed  $rescue
+     * @return mixed
+     */
+    function rescue(callable $callback, $rescue = null)
+    {
+        try {
+            return $callback();
+        } catch (Throwable $e) {
+            dd($e->getMessage());
+            return value($rescue);
+        }
+    }
+}
