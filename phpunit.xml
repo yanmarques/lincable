@@ -22,7 +22,7 @@
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix="Test.php">./src/Lincable</directory>
+            <directory suffix=".php">./src/Lincable</directory>
         </whitelist>
     </filter>
 </phpunit>
