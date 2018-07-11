@@ -30,6 +30,19 @@ if (! function_exists('storage_path')) {
     }
 }
 
+if (! function_exists('config_path')) {
+    /**
+     * Return the config path.
+     *
+     * @param  string|null $path
+     * @return string
+     */
+    function config_path(string $path = null)
+    {
+        return '/../config/'.$path;
+    }
+}
+
 if (! function_exists('event')) {
     /**
      * Fire the given event with the registered dispatcher.
