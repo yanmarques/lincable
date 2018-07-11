@@ -9,7 +9,7 @@ return [
     |
     | Here you register the default cloud driver used store the files. By default
     | if this configuration is not present, we will use the default filesystem
-    | driver, which will read from flysystem configuration. 
+    | driver, which will read from flysystem configuration.
     |
     */
 
@@ -32,8 +32,8 @@ return [
     | Temporary directory
     |--------------------------------------------------------------------------
     |
-    | Here you register the directory where files should be moved to when the 
-    | resolving a uploaded file to a local file.  
+    | Here you register the directory where files should be moved to when the
+    | resolving a uploaded file to a local file.
     |
     */
 
@@ -41,12 +41,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Upload Subscriber
+    |--------------------------------------------------------------------------
+    |
+    | Here you register the event subscriber to listen on model upload. Two
+    | events can be dispatched, failures and succeeded events.
+    |
+    */
+
+    'upload_subscriber' => \Lincable\Eloquent\Subscribers\UploadSubscriber::class,
+
+    /*
+    |--------------------------------------------------------------------------
     | Models Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you configure the model basic configuration. This should be changed 
+    | Here you configure the model basic configuration. This should be changed
     | in case you will not use this, otherwise will help you on the url conf
-    | with namespace shorthand and the field on model to save the link. 
+    | with namespace shorthand and the field on model to save the link.
     |
     */
 
@@ -61,9 +73,9 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you register how the factory will build the url when storing files on
-    | the model. The link generation accepts dynamic parameters that will be loaded  
-    | for the given model instance. 
-    | 
+    | the model. The link generation accepts dynamic parameters that will be loaded
+    | for the given model instance.
+    |
     */
     
     'urls' => [
@@ -75,14 +87,14 @@ return [
     | Custom Parsers
     |--------------------------------------------------------------------------
     |
-    | Here you register your custom parsers for compiling the url. The parsers can 
+    | Here you register your custom parsers for compiling the url. The parsers can
     | match a given pattern on url path parameter, and execute some logic to return
-    | some expected behavior. 
-    | 
+    | some expected behavior.
+    |
     */
 
     'parsers' => [
-        // 
+        //
     ],
 
     /*
@@ -94,7 +106,7 @@ return [
     | is the colon parser with the already provided formatters. This is the default
     | configuration for running lincable, althought you are able to change this
     | to fit your requirements.
-    | 
+    |
     */
 
     'default_parsers' => [
