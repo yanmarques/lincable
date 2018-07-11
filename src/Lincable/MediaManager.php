@@ -108,6 +108,7 @@ class MediaManager
     public function setDisk(string $disk)
     {
         $this->disk = $this->app['filesystem']->disk($disk);
+
         return $this;
     }
 
@@ -120,6 +121,7 @@ class MediaManager
     public function setRoot(string $root = null)
     {
         $this->urlConf = $this->createUrlConfWithRoot($root);
+
         return $this;
     }
 
@@ -146,6 +148,7 @@ class MediaManager
         }
 
         $this->parsers->push($parser->addFormatters($formatters));
+
         return $this;
     }
 
@@ -167,17 +170,17 @@ class MediaManager
     protected function readConfig()
     {
         $this->setRoot($this->getConfig('root'));
-        
+
         // Create the default parsers from config.
         $parsers = array_merge(
             $this->getConfig('default_parsers', []),
             $this->getConfig('parsers', [])
         );
-        
+
         foreach ($parsers as $parser => $formatters) {
             $this->addParser($parser, $formatters);
         }
-        
+
         // Create a new disk filesystem.
         $this->disk = $this->app['filesystem']->disk($this->getConfig('disk'));
     }

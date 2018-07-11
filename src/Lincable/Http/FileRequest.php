@@ -3,7 +3,6 @@
 namespace Lincable\Http;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Lincable\Concerns\BuildClassnames;
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\HttpFoundation\File\File;
@@ -52,7 +51,7 @@ abstract class FileRequest
 
         // Guard the file through validations.
         $this->validate();
-        
+
         $this->file = $request->file($this->getParameter());
 
         $this->booted = true;
@@ -106,7 +105,7 @@ abstract class FileRequest
 
     /**
      * Validate the file with the defined rules.
-     * 
+     *
      * @return void
      */
     public function validate()
@@ -125,7 +124,7 @@ abstract class FileRequest
     protected function getParameter()
     {
         $className = static::class;
-        
+
         return $this->nameFromClass($className, 'FileRequest');
     }
 
@@ -147,7 +146,7 @@ abstract class FileRequest
     protected function moveFileToTempDirectory()
     {
         $destination = $this->file->hashName();
-        
+
         return $this->file->move(config('lincable.temp_directory'), $destination);
     }
 
@@ -167,7 +166,7 @@ abstract class FileRequest
         if (method_exists($callable[0], $callable[1])) {
 
             // Handle the result from event call.
-            if ($result =  $app->call($callable, [$file])) {
+            if ($result = $app->call($callable, [$file])) {
                 return $result;
             }
         }

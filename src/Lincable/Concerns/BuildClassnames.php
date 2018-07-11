@@ -24,7 +24,7 @@ trait BuildClassnames
     protected function nameFromClass($class, string $suffix = null)
     {
         $name = $this->convertCase($class);
-            
+
         return Str::endsWith($name, $suffix)
             ? substr($name, 0, strlen($suffix) * -1)
             : $name;
@@ -53,7 +53,7 @@ trait BuildClassnames
                 $class = '\\'.$class;
             }
         });
-        
+
         return implode('\\', $classes);
     }
 
@@ -88,7 +88,7 @@ trait BuildClassnames
     protected function removeBackslash(string $class)
     {
         if (starts_with($class, '\\')) {
-        
+
             // Get the class without backslash.
             $class = str_after($class, '\\');
         }

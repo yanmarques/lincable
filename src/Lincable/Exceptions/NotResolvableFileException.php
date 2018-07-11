@@ -6,7 +6,7 @@ class NotResolvableFileException extends \Exception
 {
     /**
      * Create a new exception class instance.
-     * 
+     *
      * @return void
      */
     public function __construct($file)

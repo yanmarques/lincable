@@ -6,12 +6,12 @@ use Carbon\Carbon;
 use Lincable\Contracts\Formatters\Formatter;
 
 /**
- * This class formats the current year. 
+ * This class formats the current year.
  */
 class YearFormatter implements Formatter
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function format($value = null)
     {

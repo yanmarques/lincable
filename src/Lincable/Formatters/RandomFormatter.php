@@ -5,20 +5,20 @@ namespace Lincable\Formatters;
 use Lincable\Contracts\Formatters\Formatter;
 
 /**
- * This class formats a random string. 
+ * This class formats a random string.
  */
 class RandomFormatter implements Formatter
 {
     /**
      * The default random length.
-     * 
+     *
      * @var int
      */
     private $length;
 
     /**
      * Create a new class instance.
-     * 
+     *
      * @param  int $length
      * @return void
      */
@@ -28,7 +28,7 @@ class RandomFormatter implements Formatter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function format($value = null)
     {

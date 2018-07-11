@@ -6,7 +6,7 @@ interface ParameterInterface
 {
     /**
      * Create a new parameter instance.
-     * 
+     *
      * @param  string $value
      * @param  mixed|null  $params
      * @return void
@@ -15,14 +15,14 @@ interface ParameterInterface
 
     /**
      * Get the parameter value.
-     * 
+     *
      * @return string
      */
     public function getValue(): string;
 
     /**
      * Get all parameters.
-     * 
+     *
      * @return array
      */
     public function getParams(): array;
