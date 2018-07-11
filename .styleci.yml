@@ -4,5 +4,4 @@ finder:
   exclude:
     - "tests"
     - "vendor"
-  name:
-- "*.php"
+  name: "*.php"
