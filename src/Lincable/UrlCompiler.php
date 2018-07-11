@@ -129,6 +129,6 @@ class UrlCompiler implements Compiler
             return $this->parser;
         }
 
-        throw new \Exception("No parser provided for compiler");
+        throw new \Exception('No parser provided for compiler');
     }
 }

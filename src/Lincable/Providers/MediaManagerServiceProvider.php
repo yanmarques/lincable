@@ -23,7 +23,7 @@ class MediaManagerServiceProvider extends ServiceProvider
     public function boot()
     {
         $configPath = __DIR__.'/../../../config/lincable.php';
-        
+
         $this->publishes([
             $configPath => config_path('lincable.php'),
         ]);
@@ -41,7 +41,7 @@ class MediaManagerServiceProvider extends ServiceProvider
         $this->app->singleton(MediaManager::class, function ($app) {
             return new MediaManager($app, new UrlCompiler);
         });
-        
+
         $this->app['events']->subscribe($this->app['config']['lincable.upload_subscriber']);
     }
 

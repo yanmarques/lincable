@@ -2,11 +2,11 @@
 
 namespace Lincable\Contracts\Formatters;
 
-interface Formatter 
+interface Formatter
 {
     /**
      * Return a formatted string option.
-     * 
+     *
      * @param  mixed|null $value
      * @return string
      */

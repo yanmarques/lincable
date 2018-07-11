@@ -2,7 +2,6 @@
 
 namespace Lincable;
 
-use Closure;
 use Lincable\Parsers\Parser;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -169,7 +168,7 @@ class UrlGenerator
             return $this->model;
         }
 
-        throw new \Exception("Any model related with generator");
+        throw new \Exception('Any model related with generator');
     }
 
     /**
@@ -221,6 +220,7 @@ class UrlGenerator
     public function setParameterResolver($resolver)
     {
         $this->parameterResolver = $resolver;
+
         return $this;
     }
 
@@ -233,6 +233,7 @@ class UrlGenerator
     public function setCompiler(Compiler $compiler)
     {
         $this->compiler = $compiler;
+
         return $this;
     }
 
@@ -255,10 +256,10 @@ class UrlGenerator
 
             // Set the current parser.
             $this->compiler->setParser($parser);
-            
+
             return $this->compiler->parseDynamics($url);
         })->flatten()->all();
-        
+
         return array_filter($parameters, function ($key) use ($dynamics) {
             return in_array($key, $dynamics);
         }, ARRAY_FILTER_USE_KEY);

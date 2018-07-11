@@ -6,12 +6,12 @@ use Carbon\Carbon;
 use Lincable\Contracts\Formatters\Formatter;
 
 /**
- * This class formats a hash of the current timestamps. 
+ * This class formats a hash of the current timestamps.
  */
 class TimestampsFormatter implements Formatter
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function format($value = null)
     {
