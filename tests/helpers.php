@@ -58,7 +58,6 @@ if (! function_exists('rescue')) {
         try {
             return $callback();
         } catch (Throwable $e) {
-            dd($e->getMessage());
             return value($rescue);
         }
     }
