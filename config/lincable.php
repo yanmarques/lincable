@@ -115,7 +115,13 @@ return [
             \Lincable\Formatters\DayFormatter::class,
             \Lincable\Formatters\MonthFormatter::class,
             \Lincable\Formatters\RandomFormatter::class,
+<<<<<<< HEAD
             \Lincable\Formatters\TimestampsFormatter::class,
         ],
     ],
+=======
+            \Lincable\Formatters\TimestampsFormatter::class
+        ]
+    ]
+>>>>>>> 4c8a26f5a973bebf5b69c343119e2161a489f17b
 ];
