@@ -8,20 +8,20 @@ class Options implements ParameterInterface
 {
     /**
      * The options value name.
-     * 
+     *
      * @var string
      */
     protected $value;
 
     /**
      * The options parameters.
-     * 
+     *
      * @var array
      */
     protected $params;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __construct(string $value, $params = null)
     {
@@ -30,7 +30,7 @@ class Options implements ParameterInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getValue(): string
     {
@@ -38,10 +38,10 @@ class Options implements ParameterInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getParams(): array
     {
-       return $this->params; 
+        return $this->params;
     }
 }

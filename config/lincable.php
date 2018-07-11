@@ -24,7 +24,7 @@ return [
     | when searching for a path that retrieves the directory with root.
     |
     */
-    
+
     'root' => env('LINCABLE_ROOT'),
 
     /*
@@ -64,7 +64,7 @@ return [
 
     'models' => [
         'namespace' => 'App',
-        'url_field' => 'preview'
+        'url_field' => 'preview',
     ],
 
     /*
@@ -77,11 +77,11 @@ return [
     | for the given model instance.
     |
     */
-    
+
     'urls' => [
         //
     ],
-    
+
     /*
     |--------------------------------------------------------------------------
     | Custom Parsers

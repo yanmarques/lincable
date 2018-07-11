@@ -41,7 +41,7 @@ class FileResolver
             default:
                 throw new NotResolvableFileException($file);
         }
-        
+
         return static::toIlluminateFile($file);
     }
 
@@ -66,13 +66,13 @@ class FileResolver
     {
         // Get the global container instance.
         $app = Container::getInstance();
-        
+
         if (! $file->isBooted()) {
-            
+
             // Boot the file request with the current request.
             $file->boot($app->make(Request::class));
         }
-        
+
         return $file->prepareFile($app);
     }
 }

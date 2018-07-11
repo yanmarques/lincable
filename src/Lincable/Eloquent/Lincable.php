@@ -3,8 +3,8 @@
 namespace Lincable\Eloquent;
 
 use Illuminate\Http\File;
-use Lincable\UrlGenerator;
 use Lincable\MediaManager;
+use Lincable\UrlGenerator;
 use Illuminate\Container\Container;
 use Lincable\Http\File\FileResolver;
 use Lincable\Eloquent\Events\UploadSuccess;
@@ -71,7 +71,7 @@ trait Lincable
      */
     protected function throwUploadFailureException()
     {
-        throw new ConflictFileUploadHttpException("Could not store the file on disk.");
+        throw new ConflictFileUploadHttpException('Could not store the file on disk.');
     }
 
     /**

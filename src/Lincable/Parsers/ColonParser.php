@@ -9,7 +9,7 @@ class ColonParser extends Parser
 {
     /**
      * Create a new class instance.
-     * 
+     *
      * @parama Illuminate\Contracts\Container\Container $app
      * @return void
      */
@@ -19,7 +19,7 @@ class ColonParser extends Parser
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function parseMatches(array $matches): ParameterInterface
     {
@@ -27,7 +27,7 @@ class ColonParser extends Parser
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getDynamicPattern(): string
     {

@@ -6,12 +6,12 @@ use Carbon\Carbon;
 use Lincable\Contracts\Formatters\Formatter;
 
 /**
- * This class formats the current month. 
+ * This class formats the current month.
  */
 class MonthFormatter implements Formatter
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function format($value = null)
     {
