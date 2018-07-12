@@ -4,6 +4,7 @@ namespace Lincable\Providers;
 
 use Lincable\UrlCompiler;
 use Lincable\MediaManager;
+use Lincable\Http\FileRequest;
 use Illuminate\Support\ServiceProvider;
 
 class MediaManagerServiceProvider extends ServiceProvider
@@ -42,6 +43,16 @@ class MediaManagerServiceProvider extends ServiceProvider
     {
         $this->app->singleton(MediaManager::class, function ($app) {
             return new MediaManager($app, new UrlCompiler);
+        });
+
+        $this->app->resolving(FileRequest::class, function ($object, $app) {
+            if (! $object->isBooted()) {
+
+                // Boot the file request with the current request.
+                $object->boot($app['request']);
+            }
+
+            return $object;
         });
     }
 
