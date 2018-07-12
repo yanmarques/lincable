@@ -80,6 +80,39 @@ class LincableTest extends TestCase
     }
 
     /**
+     * Should execute the callback and get the contents of
+     * stored file.
+     *
+     * @return void
+     */
+    public function testWithMediaGetTheLinkedFile()
+    {
+        Event::fake();
+
+        $this->setDisk('foo');
+        $this->setConfig('lincable.urls', [
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+
+        $this->bindMediaManager();
+
+        $expected = str_random();
+    
+        // Create the random file with random text.
+        $file = new File(tap('/tmp/'.$this->getRandom('txt'), function ($file) use ($expected) {
+            touch($file);
+            file_put_contents($file, $expected);
+        }));
+        
+        $media = $this->createModel(['id' => 123]);
+        $media->link($file);
+
+        $media->withMedia(function ($file) use ($expected) {
+            $this->assertEquals($expected, file_get_contents($file->path()));
+        });
+    }
+
+    /**
      * Bind a new media manager to container.
      *
      * @return void
