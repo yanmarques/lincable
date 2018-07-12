@@ -40,10 +40,10 @@ class MediaManagerServiceProviderTest extends TestCase
      *
      * @return void
      */
-    public function testRegisterSubscriberUploadSubscriberFromConfiguration()
+    public function testBootSubscriberUploadSubscriberFromConfiguration()
     {
         $this->setDisk('s3');
-        $this->provider->register();
+        $this->provider->boot();
 
         $subscribers = Container::getInstance()['events']->getListeners(UploadSuccess::class);
         

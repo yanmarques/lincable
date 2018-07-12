@@ -26,6 +26,13 @@ abstract class FileRequest
     protected $request;
 
     /**
+     * The file parameter on request.
+     * 
+     * @var string
+     */
+    protected $parameter;
+
+    /**
      * Determine wheter has been booted with a request.
      *
      * @var bool
@@ -48,6 +55,12 @@ abstract class FileRequest
     public function boot(Request $request)
     {
         $this->request = $request;
+
+        if (! $this->getParameter()) {
+
+            // Set the file parameter.
+            $this->setParameter($this->retrieveParameter());
+        }
 
         // Guard the file through validations.
         $this->validate();
@@ -91,6 +104,40 @@ abstract class FileRequest
     }
 
     /**
+     * Return the parameter name.
+     * 
+     * @return string
+     */
+    public function getParameter()
+    {
+        return $this->parameter;
+    }
+
+    /**
+     * Set the parameter name.
+     * 
+     * @param  string $parameter
+     * @return this
+     */
+    public function setParameter(string $parameter)
+    {
+        $this->parameter = $parameter;
+
+        return $this;
+    }
+
+    /**
+     * Shortcut for @method setParameter.
+     * 
+     * @param  string $parameter
+     * @return this
+     */
+    public function as(string $parameter)
+    {
+        return $this->setParameter($parameter);
+    }
+
+    /**
      * Prepared the file to send.
      *
      * @param  \Illuminate\Contracts\Container\Container $app
@@ -117,11 +164,11 @@ abstract class FileRequest
     }
 
     /**
-     * Return the file parameter on request.
+     * Return the parameter name from class name.
      *
      * @return string
      */
-    protected function getParameter()
+    protected function retrieveParameter()
     {
         $className = static::class;
 

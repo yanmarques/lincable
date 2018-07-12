@@ -29,6 +29,8 @@ class MediaManagerServiceProvider extends ServiceProvider
         ]);
 
         $this->mergeConfigFrom($configPath, 'lincable');
+
+        $this->app['events']->subscribe($this->app['config']['lincable.upload_subscriber']);
     }
 
     /**
@@ -41,8 +43,6 @@ class MediaManagerServiceProvider extends ServiceProvider
         $this->app->singleton(MediaManager::class, function ($app) {
             return new MediaManager($app, new UrlCompiler);
         });
-        
-        $this->app['events']->subscribe($this->app['config']['lincable.upload_subscriber']);
     }
 
     /**
