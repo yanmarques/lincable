@@ -80,6 +80,26 @@ trait Lincable
     }
 
     /**
+     * Execute a container callable with the file as argument.
+     *
+     * @param  mixed $callback
+     * @return this
+     */
+    public function withMedia($callback)
+    {
+        $file = $this->createTemporaryFile();
+        
+        // Execute the callable with the temporary file. You also can receive the
+        // model instance as second argument.
+        Container::getInstance()->call($callback, [$file, $this]);
+
+        // Delete the temporary file wheter it exists.
+        (new Filesystem)->delete($file->path());
+
+        return $this;
+    }
+
+    /**
      * Return the url field to link the model.
      *
      * @return string
