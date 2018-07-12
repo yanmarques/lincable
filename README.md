@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/yanmarques/lincable.svg?branch=dev)](https://travis-ci.org/yanmarques/lincable)
  [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yanmarques/lincable/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/yanmarques/lincable/?branch=dev) 
 
-Create a link with Eloquent to an uploaded file and manage storing this file in some cloud storage. :cloud:
+Link the Eloquent model to an uploaded file, store the file on storage and saving the url on model. :cloud:
 
 # Table Of Contents
 
@@ -16,7 +16,7 @@ Create a link with Eloquent to an uploaded file and manage storing this file in 
 
 # Why this?
 
-My goal is to design a package to handle the file upload, link the model with the uploaded file and then store the file on some disk storage. The url may have dynamic parameters to execute some logic when generating the it, you are free to create your own. When creating the model or uploading the file to cloud storage, we are not free of errors, so the creation and upload are covered to register unexpected behaviours and rollback taks.  
+My goal is to design a package to handle the file upload, link the model with the uploaded file and then store the file on some disk storage. The url may have dynamic parameters to execute some logic when generating it, you are free to create your own. When creating the model or uploading the file to cloud storage, we are not free of errors, so the creation and upload are covered to register unexpected behaviours and rollback taks.  
 
 ![Database lik image](https://www.designbombs.com/wp-content/uploads/2016/04/database-connection-1024x425.jpg)
 
@@ -72,7 +72,18 @@ Or you can just download the binaries [releases](https://github.com/yanmarques/l
 
 ## Register The Service Provider
 
+You need to register the package with laravel, adding the service provider on the application providers. 
+At the `config/app.php` add this to your providers:
 
+```php
+
+'providers' => [
+    ...
+  
+    Lincable\Providers\MediaManagerServiceProvider::class,
+]
+
+```
 
 The first step is to register the url for your model on `config/lincable.php`. By default, the url has dynamic parameters to allow you to execute some logic when generating the url. To specify a dynamic parameter we just type a colon on the start of the parameter and bingo, the formatter will change the parameter on url (see [parsers and formatters](#parsers-and-formatters)). For now, we can register the schema of how the url will be generated for the model. 
 
