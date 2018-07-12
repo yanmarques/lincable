@@ -55,7 +55,7 @@ public function upload(ImageFileRequest $image)
     // The model uses the lincable trait, which has the link method
     // that store the file and generate a url for the model.
     $image->link($image);
-    $image->preview; // https://your-cloud-storage.com/your/path/1/profile.jpg
+    $image->preview; // https://your-cloud-storage.com/your/123/path/321/e1wPJQmQpFPOaQ238fglQHnrxzv2uK8joPyozv9i.jpg
 }
 
 ```
