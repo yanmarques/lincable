@@ -101,6 +101,46 @@ class FileRequestTest extends TestCase
         (new Filesystem)->deleteDirectory($destination);
     }
 
+    /**
+     * Should set the parameter on file request.
+     * 
+     * @return void
+     */
+    public function testSetParameterChangesTheParameterName()
+    {
+        $foo = new FooFileRequest('foo');
+        $expected = 'bar';
+        $foo->setParameter($expected);
+        $this->assertEquals($expected, $foo->getParameter());
+    }
+
+    /**
+     * Should set the parameter when booting.
+     * 
+     * @return void
+     */
+    public function testBootSetParameterFromClassname()
+    {
+        $expected = 'baz';
+        $request = $this->createRequest($expected, $this->getRandom('txt'));
+        $fileRequest = $this->createFileRequest('txt', false);
+        $fileRequest->setParameter($expected);
+        $fileRequest->boot($request);
+        $this->assertEquals($expected, $fileRequest->getParameter());
+    }
+
+    /**
+     * Should set the parameter name.
+     * 
+     * @return void
+     */
+    public function testAsSetsTheParameterName()
+    {
+        $foo = new FooFileRequest('foo');
+        $expected = 'bar';
+        $foo->as($expected);
+        $this->assertEquals($expected, $foo->getParameter());
+    }
 }
 
 class FooFileRequest extends FileRequest
