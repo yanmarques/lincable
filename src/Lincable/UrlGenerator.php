@@ -219,9 +219,20 @@ class UrlGenerator
      */
     public function setParameterResolver($resolver)
     {
-        static::$parameterResolver = $resolver;
+        static::withParameterResolver($resolver);
 
         return $this;
+    }
+
+    /**
+     * Set the function to resolve parameter formatter globally.
+     *
+     * @param  mixed $resolver
+     * @return void
+     */
+    public static function withParameterResolver($resolver)
+    {
+        static::$parameterResolver = $resolver;
     }
 
     /**
