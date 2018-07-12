@@ -153,9 +153,9 @@ class TestCase extends UnitTestCase
     {
         $this->setConfig('lincable.disk', $disk);
         Storage::setFacadeApplication(Container::getInstance());
-        Storage::fake($disk);
+        Storage::set($disk, Storage::createLocalDriver(['root' => storage_path(), 'url' => '/tmp']));
 
-        // Rebind the filesystem instance.
+        // Rebind the filesystem singleton.
         Container::getInstance()['filesystem'] = Storage::getFacadeRoot();
     }
 

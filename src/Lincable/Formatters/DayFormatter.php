@@ -6,12 +6,12 @@ use Carbon\Carbon;
 use Lincable\Contracts\Formatters\Formatter;
 
 /**
- * This class formats the current day. 
+ * This class formats the current day.
  */
 class DayFormatter implements Formatter
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function format($value = null)
     {

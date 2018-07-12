@@ -130,6 +130,7 @@ class UrlConf implements Repository
     public function setModelsNamespace(string $namespce)
     {
         $this->modelsNamespace = $namespce;
+
         return $this;
     }
 
@@ -144,10 +145,10 @@ class UrlConf implements Repository
         $model = $key;
 
         if (str_contains($key, '.') || ! str_contains($key, '\\')) {
-            
+
             // Build the class namespace using the base model namespace
             // and the parts of the key splitted by dots.
-            $model =  $this->buildNamespace(array_merge(
+            $model = $this->buildNamespace(array_merge(
                 [$this->modelsNamespace],
                 array_map('ucfirst', explode('.', $key))
             ));
