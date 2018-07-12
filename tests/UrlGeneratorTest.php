@@ -25,7 +25,7 @@ class UrlGeneratorTest extends TestCase
         $urlConf = new UrlConf('Tests\Lincable');
 
         // Push the foo class with the url configuration.
-        $urlConf->push(Foo::class, 'foo/:id/bar/:foo_id/baz/:bar_id');
+        $urlConf->push(FooModel::class, 'foo/:id/bar/:foo_id/baz/:bar_id');
 
         // Add the colon parser to collection.
         $parsers = collect();
@@ -45,7 +45,7 @@ class UrlGeneratorTest extends TestCase
      */
     public function testThatForModelSetsTheModelToGenerator()
     {
-        $expected = new Foo;
+        $expected = new FooModel;
         $this->generator->forModel($expected);
         $this->assertEquals($expected, $this->generator->getModel());
     }
@@ -57,7 +57,7 @@ class UrlGeneratorTest extends TestCase
      */
     public function testThatGenerateReturnTheUrlWithParamtersChanged()
     {
-        $model = new Foo([
+        $model = new FooModel([
             'id' => 1,
             'foo_id' => 2,
             'bar_id' => 3
@@ -75,7 +75,7 @@ class UrlGeneratorTest extends TestCase
      */
     public function testPassingCustomParametersToForModel()
     {
-        $model = new Foo([
+        $model = new FooModel([
             'id' => 1,
             'foo_id' => 2,
             'bar_id' => 3
@@ -94,7 +94,7 @@ class UrlGeneratorTest extends TestCase
     public function testThatForModelThrowsNoModelConfException()
     {
         $this->expectException(NoModelConfException::class);
-        $this->generator->forModel(new Bar);
+        $this->generator->forModel(new BarModel);
     }
 
     /**
@@ -111,7 +111,7 @@ class UrlGeneratorTest extends TestCase
             return 'bar';
         }, 'bar');
 
-        $model = new Foo([
+        $model = new FooModel([
             'id' => 1,
             'foo_id' => 2,
             'bar_id' => 3
@@ -122,7 +122,7 @@ class UrlGeneratorTest extends TestCase
         $this->generator->getParsers()->push($fooParser);
 
         // Set a new url configuration to FooParser.
-        $this->generator->getUrlConf()->set(Foo::class, 'foo/:id/bar/:foo_id/baz/foo@bar');
+        $this->generator->getUrlConf()->set(FooModel::class, 'foo/:id/bar/:foo_id/baz/foo@bar');
         
         $result = $this->generator->forModel($model)->generate();
         $this->assertEquals($expected, $result);
@@ -141,7 +141,7 @@ class UrlGeneratorTest extends TestCase
 
         $this->generator->setParameterResolver($resolver);
 
-        $model = new Foo([
+        $model = new FooModel([
             'id' => 1,
             'foo_id' => 2,
             'bar_id' => 3
@@ -151,33 +151,68 @@ class UrlGeneratorTest extends TestCase
         $result = $this->generator->forModel($model)->generate();
         $this->assertEquals($expected, $result);
     }
+
+    /**
+     * Should set a globally parameter resolver for url generator that sums 1
+     * values.
+     *
+     * @return void
+     */
+    public function testWithParameterResolverThatSubs1ToParameters()
+    {
+        $resolver = function ($value) {
+            return  $value + 1;
+        };
+
+        UrlGenerator::withParameterResolver($resolver);
+
+        $model = new FooModel([
+            'id' => 1,
+            'foo_id' => 2,
+            'bar_id' => 3
+        ]);
+        
+        $expected = 'foo/2/bar/3/baz/4';
+        $result = $this->generator->forModel($model)->generate();
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Should set a globally parameter resolver for url generator that sums 1
+     * values.
+     *
+     * @return void
+     */
+    public function testWithParameterResolverWithKeyArgument()
+    {
+        $resolver = function ($value, $key) {
+            if ($key == 'id') {
+                return  'changed';
+            }
+
+            return $value;
+        };
+
+        UrlGenerator::withParameterResolver($resolver);
+
+        $model = new FooModel([
+            'id' => 1,
+            'foo_id' => 2,
+            'bar_id' => 3
+        ]);
+        
+        $expected = 'foo/changed/bar/2/baz/3';
+        $result = $this->generator->forModel($model)->generate();
+        $this->assertEquals($expected, $result);
+    }
 }
 
-class FooParser extends Parser
+class BarModel extends Model
 {
-    public function __construct()
-    {
-        $this->boot(new Container);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function parseMatches(array $matches): ParameterInterface
-    {
-        return new Options(head($matches));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getDynamicPattern(): string
-    {
-        return '/^foo@([a-zA-Z]+)$/';
-    }
+    //
 }
 
-class Foo extends Model
+class FooModel extends Model
 {
     protected $fillable = [
         'id',

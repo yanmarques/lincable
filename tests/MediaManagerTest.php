@@ -214,10 +214,3 @@ class FooFormatter
         return 'foo';
     }
 }
-
-class FooModel extends Model
-{
-    protected $fillable = [
-        'id'
-    ];
-}

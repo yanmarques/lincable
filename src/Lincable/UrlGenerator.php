@@ -50,7 +50,7 @@ class UrlGenerator
      *
      * @var mixed
      */
-    protected $parameterResolver;
+    protected static $parameterResolver;
 
     /**
      * Create a new class instance.
@@ -219,9 +219,20 @@ class UrlGenerator
      */
     public function setParameterResolver($resolver)
     {
-        $this->parameterResolver = $resolver;
+        static::withParameterResolver($resolver);
 
         return $this;
+    }
+
+    /**
+     * Set the function to resolve parameter formatter globally.
+     *
+     * @param  mixed $resolver
+     * @return void
+     */
+    public static function withParameterResolver($resolver)
+    {
+        static::$parameterResolver = $resolver;
     }
 
     /**
@@ -277,14 +288,14 @@ class UrlGenerator
             foreach ($dynamicParameters as $key => $value) {
 
                 // Register the formatter for the key, and the logic function is to return
-                $parser->addFormatter(function () use ($value, $parser) {
-                    if ($this->parameterResolver) {
+                $parser->addFormatter(function () use ($value, $key, $parser) {
+                    if (static::$parameterResolver) {
 
                         // Get the container instance on parser class.
                         $container = $parser->getContainer();
 
                         // Call the parameter resolver for the value returned.
-                        $value = $container->call($this->parameterResolver, [$value]);
+                        $value = $container->call(static::$parameterResolver, [$value, $key]);
                     }
 
                     return $value;
