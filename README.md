@@ -34,16 +34,27 @@ Sounds nice? Let's develop this! :smile:
 
 ## Basic Usage
 
-You will specify what type of data type to be uploaded and create the model from it. The preview will be auto generated based on url configuration.
+You will specify what type of data to be uploaded and create the model from it. The preview will be auto generated based on url configuration.
 
 ```php
 
+/**
+ * Upload a file to application.
+ *
+ * @param  ImageFileRequest $image
+ * @return Response
+ */
 public function upload(ImageFileRequest $image) 
 {
     // Create an image model on database relating the file with the model.
-    $image = \App\Image::createFromFileRequest($image);
-    $image->id; // 1
-    $image->filename; // profile.jpg
+    $image = \App\Image::create([
+        'id' => 123,
+        'any_id' => 321
+    ]);
+    
+    // The model uses the lincable trait, which has the link method
+    // that store the file and generate a url for the model.
+    $image->link($image);
     $image->preview; // https://your-cloud-storage.com/your/path/1/profile.jpg
 }
 
@@ -53,14 +64,15 @@ public function upload(ImageFileRequest $image)
 
 ## Installing
 
-You can install cloning the project with git:
+You can install using [composer](https://getcomposer.org/):
 ```bash
-$ git clone git@github.com:yanmarques/lincable.git
+$ composer install yanmarques/lincable
 ```
 Or you can just download the binaries [releases](https://github.com/yanmarques/lincable/releases).
 
-> *Note: For now the package is not configured with Laravel as we are in development process. All you can do is to test.
-> The usage described below is experimental and can change over the time*. 
+## Register The Service Provider
+
+
 
 The first step is to register the url for your model on `config/lincable.php`. By default, the url has dynamic parameters to allow you to execute some logic when generating the url. To specify a dynamic parameter we just type a colon on the start of the parameter and bingo, the formatter will change the parameter on url (see [parsers and formatters](#parsers-and-formatters)). For now, we can register the schema of how the url will be generated for the model. 
 
@@ -72,7 +84,7 @@ return [
     ...
     
    'urls' => [
-        \App\Image::class => 'your/path/:id/:filename'
+        \App\Image::class => 'your/:id/path/:any_id'
     ]
 ];
 
