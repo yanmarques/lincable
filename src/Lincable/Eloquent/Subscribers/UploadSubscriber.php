@@ -7,9 +7,10 @@ class UploadSubscriber
     /**
      * Listen when the upload has been executed with success.
      *
+     * @param  mixed $event
      * @return void
      */
-    public function onSuccess($model)
+    public function onSuccess($event)
     {
         //
     }
@@ -17,12 +18,13 @@ class UploadSubscriber
     /**
      * Listen when the upload has failed.
      *
+     * @param  mixed $event
      * @return void
      */
-    public function onFailure($model)
+    public function onFailure($event)
     {
         // Delete the model from database once the file could not be stored.
-        $model->delete();
+        $event->model->delete();
     }
 
     /**
