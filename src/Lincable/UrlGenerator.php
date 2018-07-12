@@ -277,14 +277,14 @@ class UrlGenerator
             foreach ($dynamicParameters as $key => $value) {
 
                 // Register the formatter for the key, and the logic function is to return
-                $parser->addFormatter(function () use ($value, $parser) {
+                $parser->addFormatter(function () use ($value, $key, $parser) {
                     if (static::$parameterResolver) {
 
                         // Get the container instance on parser class.
                         $container = $parser->getContainer();
 
                         // Call the parameter resolver for the value returned.
-                        $value = $container->call(static::$parameterResolver, [$value]);
+                        $value = $container->call(static::$parameterResolver, [$value, $key]);
                     }
 
                     return $value;
