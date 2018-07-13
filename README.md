@@ -278,7 +278,7 @@ $generator = new UrlGenerator($urlCompiler, $parsers, $urlConf);
 
 $preview = $generator->forModel($file)->generate(); // Generate the url for the model from configuration.
 
-$file->update(compact('preview')); // ['id' => 123, 'foo_id' => '321', 'preview' => '2018/123/07/321/HJSxDckZZcMbc8AiWxzlg1Jx2gBVYO6kBqhna6Td.zip']
+$preview; // 'https://your-disk-storage.com/2018/123/07/321/HJSxDckZZcMbc8AiWxzlg1Jx2gBVYO6kBqhna6Td.zip'
 ```
 
 # Testing
