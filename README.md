@@ -59,7 +59,15 @@ public function upload(ImageFileRequest $image)
 
 ## Installing
 
-You can install using [composer](https://getcomposer.org/):
+We must add this package as dependency for your project, adding to your `composer.json` file.
+```json
+{
+    "require-dev": {
+        "yanmarques/lincable": "^0.11.0"
+    }
+}
+```
+Or install using [composer](https://getcomposer.org/):
 ```bash
 $ composer require yanmarques/lincable
 ```
@@ -75,15 +83,15 @@ You need to register the package with laravel, adding the service provider on th
 At the `config/app.php` add this to your providers:
 
 ```php
-
-'providers' => [
-    ...
-    /*
-     * Package Service Providers...
-     */
-    Lincable\Providers\MediaManagerServiceProvider::class,
+return [
+    'providers' => [
+        ...
+        /*
+         * Package Service Providers...
+         */
+        Lincable\Providers\MediaManagerServiceProvider::class,
+    ]
 ]
-
 ```
 
 ## Publish Configuration
@@ -102,7 +110,6 @@ The eloquent model will be responsable to link the file. The link will be genera
 Suppose we have an image model which has an `id` and `user_id` attributes, both uuid type.
 
 ```php
-
 use Lincable\Eloquent\Trait\Lincable;
 
 class Image extends Model
@@ -111,7 +118,6 @@ class Image extends Model
 
     protected $fillable = ['user_id'];
 }
-
 ```
 
 Once we have our model, we need to define the url generated for the model. We must set the urls on `config/lincable.php`. Urls is the list with all model urls configuration. Each model has an url, and this one, by default has dynamic parameters to be injected with the model attributes, see [parsers and formatters](#parsers-and-formatters) for more details of how to use default dynamic parameters. For example, we want to save the file in an url that contains the `user_id` and the model `id`, something like that this path: `users/user-id-here/ìmages/id-here/`. We can inject model attributes on url using the url dynamic parameters.
@@ -119,14 +125,12 @@ Once we have our model, we need to define the url generated for the model. We mu
 Here the file `config/lincable.php` configuration.
 
 ```php
-
 return [
     ...
    'urls' => [
         \App\Image::class => 'users/:user_id/images/:id'
     ]
 ];
-
 ```
 
 Ok, now we create the controller to handle the upload. Laravel uses the containter dependency injection to resolve classes, methods, closures, etc..., the controller action registered on route has this definition as well. As seen before at [basic usage](#basic-usage), the controller should receive the file request as argument, this is nice because the file request must be booted with the current request to work, and when the container resolves a file request, it boots the object with the request. The code at basic usage ensures the file type, because as explained before, the file request as service must be booted with the current request, and this process is necessary to validate the file with the rules. Once the file is not valid, we do not even execute the action code.  
@@ -138,7 +142,6 @@ The `ImageFileRequest` extends from the `FileRequest` abstract class that actual
 The controller to upload the files will handle the file upload and storing it on cloud and saving the link on the database. The file request will be a file manager defining how the file upload will be performed and what kind of data type is expected for the controller upload. This enforces the data type and rules for the file upload, making generic file requests that can work with more other controllers that receives same file types. 
 
 ```php
-
 /**
  * Upload a image to application.
  * 
@@ -146,13 +149,11 @@ The controller to upload the files will handle the file upload and storing it on
  * @return response
  */
 public function upload(ImageFileRequest $image) 
-
 ```
 
 On the `App\FileRequests\ImageFileRequest` class we define rules for images upload on the application, and what to do with the file before effectively storing it on disk storage. For example, we want to resize the image upload before storing it. We are calling `Image` facade from [intervention](http://image.intervention.io) image manipulation.
 
 ```php
-
 use Image;
 use Lincable\Http\FileRequest;
 
@@ -170,10 +171,7 @@ class ImageFileRequest extends FileRequest
         Image::make($file)->resize(600, 400)->save();
     }
 }
-
 ```
-
-
 
 ## Parsers and Formatters
 
@@ -242,10 +240,9 @@ class GetApiIdFormatter
 
 ```
 
-Now we add the formatter class to lincable configuration. First thing, you must understand how a formatter work and what the parser function in [parsers and formatters](#parsers-and-formatters). Now you know, we add the formatter to the default package parser, the `ColonParser`. 
+Now we add the formatter class to lincable configuration. Now we add the formatter to the default package parser, the `ColonParser`. 
 
 ```php
-
 return [
     ...
     
@@ -264,7 +261,6 @@ return [
         ]
     ] 
 ];
-
 ```
 
 ## UrlGenerator
@@ -272,16 +268,17 @@ return [
 The url generator compiles a given url for the model instance, based on url configuration.  
 
 ```php
+$file->toArray(); // ['id' => 123, 'foo_id' => 321,'preview' => null]
 
-$file = File::create(['name' => 'foo.zip']); // Create the file model.
-$file->toArray(); // ['id' => 123, 'name' => 'foo.zip', 'preview' => null]
 $urlConf = new UrlConf; // Create the model url configuration.
-$urlConf->push(File::class, ':year/:month/:id/:name');
+
+$urlConf->push(File::class, ':year/:id/:month/:foo_id');
+
 $generator = new UrlGenerator($urlCompiler, $parsers, $urlConf); 
+
 $preview = $generator->forModel($file)->generate(); // Generate the url for the model from configuration.
-$file->update(compact('preview')); // ['id' => 123, 'name' => 'foo.zip', 'preview' => '2018/07/123/foo.zip']
 
-
+$file->update(compact('preview')); // ['id' => 123, 'foo_id' => '321', 'preview' => '2018/123/07/321/HJSxDckZZcMbc8AiWxzlg1Jx2gBVYO6kBqhna6Td.zip']
 ```
 
 # Testing
