@@ -9,6 +9,10 @@ Link the Eloquent model to an uploaded file, store the file on storage and then 
 * [Basic Usage](#basic-usage)
 * [Getting Started](#getting-started)
     - [Installing](#installing)
+    - [Register the Service Provider](#register-the-service-provider)
+    - [Publish Configuration](#publish-configuration)
+    - [Configuring The Model](#configuring-the-model)
+    - [FileRequest](#filerequest)
     - [Parsers and Formatters](#parsers-and-formatters)
     - [UrlGenerator](#urlgenerator)
 * [Testing](#testing)
@@ -82,7 +86,7 @@ At the `config/app.php` add this to your providers:
 
 ```
 
-## Publish The Lincable Configuration
+## Publish Configuration
 
 Basically, you must to configurate the lincable file to get everything running cool. This configuraton file will be available at `config/lincable.php` after you have published the service container assets with:
 
