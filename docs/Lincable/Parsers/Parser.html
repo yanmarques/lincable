@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="index, follow, all" />
+    <title>Lincable\Parsers\Parser | API</title>
+
+            <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../../css/bootstrap-theme.min.css">
+        <link rel="stylesheet" type="text/css" href="../../css/sami.css">
+        <script src="../../js/jquery-1.11.1.min.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script src="../../js/typeahead.min.js"></script>
+        <script src="../../sami.js"></script>
+        <meta name="MobileOptimized" content="width">
+        <meta name="HandheldFriendly" content="true">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    
+    
+    </head>
+
+    <body id="class" data-name="class:Lincable_Parsers_Parser" data-root-path="../../">
+            <div id="content">
+        <div id="left-column">
+                <div id="control-panel">
+                <script>
+            $('option[data-version="'+window.projectVersion+'"]').prop('selected', true);
+        </script>
+        <form id="search-form" action="../../search.html" method="GET">
+            <span class="glyphicon glyphicon-search"></span>
+            <input name="search"
+                   class="typeahead form-control"
+                   type="search"
+                   placeholder="Search">
+        </form>
+    </div>
+
+                <div id="api-tree"></div>
+
+        </div>
+        <div id="right-column">
+                <nav id="site-nav" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-elements">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../../index.html">API</a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-elements">
+                <ul class="nav navbar-nav">
+                    <li><a href="../../classes.html">Classes</a></li>
+                                            <li><a href="../../namespaces.html">Namespaces</a></li>
+                                        <li><a href="../../interfaces.html">Interfaces</a></li>
+                    <li><a href="../../traits.html">Traits</a></li>
+                    <li><a href="../../doc-index.html">Index</a></li>
+                    <li><a href="../../search.html">Search</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+                        <div class="namespace-breadcrumbs">
+            <ol class="breadcrumb">
+                <li><span class="label label-default">class</span></li>
+                        <li><a href="../../Lincable.html">Lincable</a></li><li class="backslash">\</li><li><a href="../../Lincable/Parsers.html">Parsers</a></li><li class="backslash">\</li><li>Parser</li>
+            </ol>
+        </div>
+                <div id="page-content">
+                
+    <div class="page-header">
+        <h1>
+            Parser
+                
+        </h1>
+    </div>
+
+    <p>abstract     class
+    <strong>Parser</strong>
+</p>
+
+        
+    
+
+    
+            <h2>Traits</h2>
+
+        
+    <div class="container-fluid underlined">
+                    <div class="row">
+                <div class="col-md-6">
+                                            <a href="../../Lincable/Concerns/BuildClassnames.html"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a>
+                                            
+                </div>
+                <div class="col-md-6">
+                    
+                </div>
+            </div>
+            </div>
+    
+    
+            <h2>Properties</h2>
+
+            <table class="table table-condensed">
+                    <tr>
+                <td class="type" id="property_camelCase">
+                                        protected                                        bool
+                </td>
+                <td>$camelCase</td>
+                <td class="last">Determine wheter the case to use is camel.</td>
+                <td><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#property_camelCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_formatters">
+                                        protected                                        <abbr title="Illuminate\Support\Collection">Collection</abbr>
+                </td>
+                <td>$formatters</td>
+                <td class="last">List with availables formatters.</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_app">
+                                        protected                                        <abbr title="Illuminate\Contracts\Container\Container">Container</abbr>
+                </td>
+                <td>$app</td>
+                <td class="last">The application container implementation.</td>
+                <td></td>
+            </tr>
+            </table>
+
+    
+            <h2>Methods</h2>
+
+            <div class="container-fluid underlined">
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_nameFromClass">nameFromClass</a>(mixed $class, string $suffix = null)
+        
+                                            <p>Return the basename of class do camel case removing
+unecessary suffixes.</p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#method_nameFromClass"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_buildNamespace">buildNamespace</a>(array $classes)
+        
+                                            <p>Return the namespace from array of classes.</p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#method_buildNamespace"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_classToCamelCase">classToCamelCase</a>(mixed $class)
+        
+                                            <p>Return the class basename to camel case.</p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#method_classToCamelCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_classToSnakeCase">classToSnakeCase</a>(mixed $class)
+        
+                                            <p>Return the class basename to snake case.</p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#method_classToSnakeCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_removeBackslash">removeBackslash</a>(string $class)
+        
+                                            <p>Remove the backslash on start of class.</p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#method_removeBackslash"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_convertCase">convertCase</a>(string|object $class)
+        
+                                            <p>Convert the class basenmae.</p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../Lincable/Concerns/BuildClassnames.html#method_convertCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../../Lincable/Contracts/Parsers/ParameterInterface.html"><abbr title="Lincable\Contracts\Parsers\ParameterInterface">ParameterInterface</abbr></a>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_parseMatches">parseMatches</a>(array $matches)
+        
+                                            <p>Return the formatter call for the matches on parse.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getDynamicPattern">getDynamicPattern</a>()
+        
+                                            <p>Return the dynamic regex pattern.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    void
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_boot">boot</a>(<abbr title="Illuminate\Contracts\Container\Container">Container</abbr> $app = null)
+        
+                                            <p>Boot the parser with the container executing initial tasks.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\Parsers\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_addFormatter">addFormatter</a>(mixed $formatter, string $name = null)
+        
+                                            <p>Push a new formatter to collection.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_parse">parse</a>(string $option)
+        
+                                            <p>Parse an option through formatters.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\Parsers\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_addFormatters">addFormatters</a>(mixed $formatters)
+        
+                                            <p>Append a list of formatters.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\Parsers\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_setFormatters">setFormatters</a>(<abbr title="Illuminate\Support\Collection">Collection</abbr> $formatters)
+        
+                                            <p>Set the list with the new formatters.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Illuminate\Support\Collection">Collection</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getFormatters">getFormatters</a>()
+        
+                                            <p>Return the formatters collection.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Illuminate\Contracts\Container\Container">Container</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getContainer">getContainer</a>()
+        
+                                            <p>Return the containter instance.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\Parsers\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_setContainer">setContainer</a>(<abbr title="Illuminate\Contracts\Container\Container">Container</abbr> $app)
+        
+                                            <p>Set the new container instance.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_findFormatter">findFormatter</a>(string $option)
+        
+                                            <p>Return the first formatter that matches the option name.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    bool
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_shouldParse">shouldParse</a>(string $option)
+        
+                                            <p>Determine wheter the parameter should be parsed.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_runForParameter">runForParameter</a>(<a href="../../Lincable/Contracts/Parsers/ParameterInterface.html"><abbr title="Lincable\Contracts\Parsers\ParameterInterface">ParameterInterface</abbr></a> $parameter)
+        
+                                            <p>Run the parser for the parameter.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_callFormatter">callFormatter</a>(mixed $formatter, array $params = [])
+        
+                                            <p>Resolve the formatter call using the container with the array parameters.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_resolveFormatter">resolveFormatter</a>(mixed $formatter)
+        
+                                            <p>Resolve a formatter to a container callable.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    bool
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_isParameterDynamic">isParameterDynamic</a>(string $parameter)
+        
+                                            <p>Determine wheter the parameter is dynamic.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    array
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getMatches">getMatches</a>(string $parameter)
+        
+                                            <p>Return the matches.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+            </div>
+
+
+        <h2>Details</h2>
+
+            <div id="method-details">
+                    <div class="method-item">
+                    <h3 id="method_nameFromClass">
+        <div class="location">in <a href="../../Lincable/Concerns/BuildClassnames.html#method_nameFromClass"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a> at         line 24</div>
+        <code>            protected        mixed
+    <strong>nameFromClass</strong>(mixed $class, string $suffix = null)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the basename of class do camel case removing
+unecessary suffixes.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$class</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$suffix</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_buildNamespace">
+        <div class="location">in <a href="../../Lincable/Concerns/BuildClassnames.html#method_buildNamespace"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a> at         line 39</div>
+        <code>            protected        string
+    <strong>buildNamespace</strong>(array $classes)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the namespace from array of classes.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>array</td>
+                <td>$classes</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_classToCamelCase">
+        <div class="location">in <a href="../../Lincable/Concerns/BuildClassnames.html#method_classToCamelCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a> at         line 66</div>
+        <code>            protected        string
+    <strong>classToCamelCase</strong>(mixed $class)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the class basename to camel case.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$class</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_classToSnakeCase">
+        <div class="location">in <a href="../../Lincable/Concerns/BuildClassnames.html#method_classToSnakeCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a> at         line 77</div>
+        <code>            protected        string
+    <strong>classToSnakeCase</strong>(mixed $class)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the class basename to snake case.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$class</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_removeBackslash">
+        <div class="location">in <a href="../../Lincable/Concerns/BuildClassnames.html#method_removeBackslash"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a> at         line 88</div>
+        <code>            protected        string
+    <strong>removeBackslash</strong>(string $class)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Remove the backslash on start of class.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$class</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_convertCase">
+        <div class="location">in <a href="../../Lincable/Concerns/BuildClassnames.html#method_convertCase"><abbr title="Lincable\Concerns\BuildClassnames">BuildClassnames</abbr></a> at         line 105</div>
+        <code>            protected        string
+    <strong>convertCase</strong>(string|object $class)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Convert the class basenmae.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string|object</td>
+                <td>$class</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_parseMatches">
+        <div class="location">at         line 37</div>
+        <code>    abstract        protected        <a href="../../Lincable/Contracts/Parsers/ParameterInterface.html"><abbr title="Lincable\Contracts\Parsers\ParameterInterface">ParameterInterface</abbr></a>
+    <strong>parseMatches</strong>(array $matches)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the formatter call for the matches on parse.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>array</td>
+                <td>$matches</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../../Lincable/Contracts/Parsers/ParameterInterface.html"><abbr title="Lincable\Contracts\Parsers\ParameterInterface">ParameterInterface</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getDynamicPattern">
+        <div class="location">at         line 44</div>
+        <code>    abstract        protected        string
+    <strong>getDynamicPattern</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the dynamic regex pattern.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_boot">
+        <div class="location">at         line 52</div>
+        <code>                    void
+    <strong>boot</strong>(<abbr title="Illuminate\Contracts\Container\Container">Container</abbr> $app = null)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Boot the parser with the container executing initial tasks.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><abbr title="Illuminate\Contracts\Container\Container">Container</abbr></td>
+                <td>$app</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>void</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_addFormatter">
+        <div class="location">at         line 65</div>
+        <code>                    <abbr title="Lincable\Parsers\this">this</abbr>
+    <strong>addFormatter</strong>(mixed $formatter, string $name = null)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Push a new formatter to collection.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$formatter</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$name</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\Parsers\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_parse">
+        <div class="location">at         line 83</div>
+        <code>                    mixed
+    <strong>parse</strong>(string $option)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Parse an option through formatters.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$option</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+                            <h4>Exceptions</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><abbr title="Lincable\Parsers\Lincable\Exceptions\NotDynamicOption">NotDynamicOption</abbr></td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_addFormatters">
+        <div class="location">at         line 105</div>
+        <code>                    <abbr title="Lincable\Parsers\this">this</abbr>
+    <strong>addFormatters</strong>(mixed $formatters)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Append a list of formatters.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$formatters</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\Parsers\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setFormatters">
+        <div class="location">at         line 120</div>
+        <code>                    <abbr title="Lincable\Parsers\this">this</abbr>
+    <strong>setFormatters</strong>(<abbr title="Illuminate\Support\Collection">Collection</abbr> $formatters)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Set the list with the new formatters.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><abbr title="Illuminate\Support\Collection">Collection</abbr></td>
+                <td>$formatters</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\Parsers\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getFormatters">
+        <div class="location">at         line 132</div>
+        <code>                    <abbr title="Illuminate\Support\Collection">Collection</abbr>
+    <strong>getFormatters</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the formatters collection.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Illuminate\Support\Collection">Collection</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getContainer">
+        <div class="location">at         line 142</div>
+        <code>                    <abbr title="Illuminate\Contracts\Container\Container">Container</abbr>
+    <strong>getContainer</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the containter instance.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Illuminate\Contracts\Container\Container">Container</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setContainer">
+        <div class="location">at         line 153</div>
+        <code>                    <abbr title="Lincable\Parsers\this">this</abbr>
+    <strong>setContainer</strong>(<abbr title="Illuminate\Contracts\Container\Container">Container</abbr> $app)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Set the new container instance.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><abbr title="Illuminate\Contracts\Container\Container">Container</abbr></td>
+                <td>$app</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\Parsers\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_findFormatter">
+        <div class="location">at         line 166</div>
+        <code>                    mixed
+    <strong>findFormatter</strong>(string $option)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the first formatter that matches the option name.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$option</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_shouldParse">
+        <div class="location">at         line 177</div>
+        <code>            protected        bool
+    <strong>shouldParse</strong>(string $option)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Determine wheter the parameter should be parsed.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$option</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>bool</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_runForParameter">
+        <div class="location">at         line 189</div>
+        <code>            protected        mixed
+    <strong>runForParameter</strong>(<a href="../../Lincable/Contracts/Parsers/ParameterInterface.html"><abbr title="Lincable\Contracts\Parsers\ParameterInterface">ParameterInterface</abbr></a> $parameter)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Run the parser for the parameter.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><a href="../../Lincable/Contracts/Parsers/ParameterInterface.html"><abbr title="Lincable\Contracts\Parsers\ParameterInterface">ParameterInterface</abbr></a></td>
+                <td>$parameter</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_callFormatter">
+        <div class="location">at         line 217</div>
+        <code>            protected        mixed
+    <strong>callFormatter</strong>(mixed $formatter, array $params = [])
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Resolve the formatter call using the container with the array parameters.</p>                    <p>The formatter argument should be a callable for the container.</p>                            </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$formatter</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>array</td>
+                <td>$params</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_resolveFormatter">
+        <div class="location">at         line 228</div>
+        <code>            protected        mixed
+    <strong>resolveFormatter</strong>(mixed $formatter)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Resolve a formatter to a container callable.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$formatter</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_isParameterDynamic">
+        <div class="location">at         line 251</div>
+        <code>                    bool
+    <strong>isParameterDynamic</strong>(string $parameter)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Determine wheter the parameter is dynamic.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$parameter</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>bool</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getMatches">
+        <div class="location">at         line 262</div>
+        <code>                    array
+    <strong>getMatches</strong>(string $parameter)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the matches.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$parameter</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>array</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+            </div>
+
+    
+            </div>
+                <div id="footer">
+        Generated by <a href="http://sami.sensiolabs.org/">Sami, the API Documentation Generator</a>.
+    </div>
+
+        </div>
+    </div>
+    </body>
+
+</html>

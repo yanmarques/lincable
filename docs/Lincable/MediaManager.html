@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="index, follow, all" />
+    <title>Lincable\MediaManager | API</title>
+
+            <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../css/bootstrap-theme.min.css">
+        <link rel="stylesheet" type="text/css" href="../css/sami.css">
+        <script src="../js/jquery-1.11.1.min.js"></script>
+        <script src="../js/bootstrap.min.js"></script>
+        <script src="../js/typeahead.min.js"></script>
+        <script src="../sami.js"></script>
+        <meta name="MobileOptimized" content="width">
+        <meta name="HandheldFriendly" content="true">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    
+    
+    </head>
+
+    <body id="class" data-name="class:Lincable_MediaManager" data-root-path="../">
+            <div id="content">
+        <div id="left-column">
+                <div id="control-panel">
+                <script>
+            $('option[data-version="'+window.projectVersion+'"]').prop('selected', true);
+        </script>
+        <form id="search-form" action="../search.html" method="GET">
+            <span class="glyphicon glyphicon-search"></span>
+            <input name="search"
+                   class="typeahead form-control"
+                   type="search"
+                   placeholder="Search">
+        </form>
+    </div>
+
+                <div id="api-tree"></div>
+
+        </div>
+        <div id="right-column">
+                <nav id="site-nav" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-elements">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../index.html">API</a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-elements">
+                <ul class="nav navbar-nav">
+                    <li><a href="../classes.html">Classes</a></li>
+                                            <li><a href="../namespaces.html">Namespaces</a></li>
+                                        <li><a href="../interfaces.html">Interfaces</a></li>
+                    <li><a href="../traits.html">Traits</a></li>
+                    <li><a href="../doc-index.html">Index</a></li>
+                    <li><a href="../search.html">Search</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+                        <div class="namespace-breadcrumbs">
+            <ol class="breadcrumb">
+                <li><span class="label label-default">class</span></li>
+                        <li><a href="../Lincable.html">Lincable</a></li><li class="backslash">\</li><li>MediaManager</li>
+            </ol>
+        </div>
+                <div id="page-content">
+                
+    <div class="page-header">
+        <h1>
+            MediaManager
+                
+        </h1>
+    </div>
+
+    <p>    class
+    <strong>MediaManager</strong>
+</p>
+
+        
+    
+
+    
+    
+    
+            <h2>Properties</h2>
+
+            <table class="table table-condensed">
+                    <tr>
+                <td class="type" id="property_app">
+                                        protected                                        <abbr title="Illuminate\Contracts\Container\Container">Container</abbr>
+                </td>
+                <td>$app</td>
+                <td class="last">The container implementation.</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_compiler">
+                                        protected                                        <a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a>
+                </td>
+                <td>$compiler</td>
+                <td class="last">The compiler implementation.</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_urlConf">
+                                        protected                                        <a href="../Lincable/UrlConf.html"><abbr title="Lincable\UrlConf">UrlConf</abbr></a>
+                </td>
+                <td>$urlConf</td>
+                <td class="last">The model url configuration.</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_disk">
+                                        protected                                        <abbr title="Illuminate\Contracts\Filesystem\Filesystem">Filesystem</abbr>
+                </td>
+                <td>$disk</td>
+                <td class="last">The disk for file storage.</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_parsers">
+                                        protected                                        <abbr title="Illuminate\Support\Collection">Collection</abbr>
+                </td>
+                <td>$parsers</td>
+                <td class="last">The collection with the url parsers.</td>
+                <td></td>
+            </tr>
+            </table>
+
+    
+            <h2>Methods</h2>
+
+            <div class="container-fluid underlined">
+                    <div class="row">
+                <div class="col-md-2 type">
+                    void
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method___construct">__construct</a>(<abbr title="Illuminate\Contracts\Container\Container">Container</abbr> $app, <a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a> $compiler)
+        
+                                            <p>Create a new class instance.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_setCompiler">setCompiler</a>(<a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a> $compiler)
+        
+                                            <p>Set the media url compiler.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Illuminate\Contracts\Compilers\Compiler">Compiler</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getCompiler">getCompiler</a>()
+        
+                                            <p>Return the compiler class.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Illuminate\Contracts\Filesystem\Filesystem">Filesystem</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getDisk">getDisk</a>()
+        
+                                            <p>Return the disk storage.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../Lincable/UrlConf.html"><abbr title="Lincable\UrlConf">UrlConf</abbr></a>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getUrlConf">getUrlConf</a>()
+        
+                                            <p>Return the model url configuration.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_setDisk">setDisk</a>(string $disk)
+        
+                                            <p>Set the new disk to use.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_setRoot">setRoot</a>(string $root = null)
+        
+                                            <p>Set a root path for the urls.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Lincable\this">this</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_addParser">addParser</a>(mixed $parser, mixed $formatters = [])
+        
+                                            <p>Add a new parser to the manager.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../Lincable/UrlGenerator.html"><abbr title="Lincable\UrlGenerator">UrlGenerator</abbr></a>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_buildUrlGenerator">buildUrlGenerator</a>()
+        
+                                            <p>Return a url generator instance with the manager configuration.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    void
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_readConfig">readConfig</a>()
+        
+                                            <p>Read the configuration from container.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_getConfig">getConfig</a>(string $key, mixed $default = null)
+        
+                                            <p>Return the configuration value.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Licable\UrlConf">UrlConf</abbr>
+                </div>
+                <div class="col-md-8 type">
+                    <a href="#method_createUrlConfWithRoot">createUrlConfWithRoot</a>(string $root = null)
+        
+                                            <p>Create a new url conf with a root url.</p>                </div>
+                <div class="col-md-2"></div>
+            </div>
+            </div>
+
+
+        <h2>Details</h2>
+
+            <div id="method-details">
+                    <div class="method-item">
+                    <h3 id="method___construct">
+        <div class="location">at         line 53</div>
+        <code>                    void
+    <strong>__construct</strong>(<abbr title="Illuminate\Contracts\Container\Container">Container</abbr> $app, <a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a> $compiler)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Create a new class instance.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><abbr title="Illuminate\Contracts\Container\Container">Container</abbr></td>
+                <td>$app</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td><a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a></td>
+                <td>$compiler</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>void</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setCompiler">
+        <div class="location">at         line 67</div>
+        <code>                    <abbr title="Lincable\this">this</abbr>
+    <strong>setCompiler</strong>(<a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a> $compiler)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Set the media url compiler.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td><a href="../Lincable/Contracts/Compilers/Compiler.html"><abbr title="Lincable\Contracts\Compilers\Compiler">Compiler</abbr></a></td>
+                <td>$compiler</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getCompiler">
+        <div class="location">at         line 77</div>
+        <code>                    <abbr title="Illuminate\Contracts\Compilers\Compiler">Compiler</abbr>
+    <strong>getCompiler</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the compiler class.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Illuminate\Contracts\Compilers\Compiler">Compiler</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getDisk">
+        <div class="location">at         line 87</div>
+        <code>                    <abbr title="Illuminate\Contracts\Filesystem\Filesystem">Filesystem</abbr>
+    <strong>getDisk</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the disk storage.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Illuminate\Contracts\Filesystem\Filesystem">Filesystem</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getUrlConf">
+        <div class="location">at         line 97</div>
+        <code>                    <a href="../Lincable/UrlConf.html"><abbr title="Lincable\UrlConf">UrlConf</abbr></a>
+    <strong>getUrlConf</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the model url configuration.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../Lincable/UrlConf.html"><abbr title="Lincable\UrlConf">UrlConf</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setDisk">
+        <div class="location">at         line 108</div>
+        <code>                    <abbr title="Lincable\this">this</abbr>
+    <strong>setDisk</strong>(string $disk)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Set the new disk to use.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$disk</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setRoot">
+        <div class="location">at         line 121</div>
+        <code>                    <abbr title="Lincable\this">this</abbr>
+    <strong>setRoot</strong>(string $root = null)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Set a root path for the urls.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$root</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_addParser">
+        <div class="location">at         line 135</div>
+        <code>                    <abbr title="Lincable\this">this</abbr>
+    <strong>addParser</strong>(mixed $parser, mixed $formatters = [])
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Add a new parser to the manager.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$parser</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>mixed</td>
+                <td>$formatters</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Lincable\this">this</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_buildUrlGenerator">
+        <div class="location">at         line 160</div>
+        <code>                    <a href="../Lincable/UrlGenerator.html"><abbr title="Lincable\UrlGenerator">UrlGenerator</abbr></a>
+    <strong>buildUrlGenerator</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return a url generator instance with the manager configuration.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../Lincable/UrlGenerator.html"><abbr title="Lincable\UrlGenerator">UrlGenerator</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_readConfig">
+        <div class="location">at         line 170</div>
+        <code>            protected        void
+    <strong>readConfig</strong>()
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Read the configuration from container.</p>                                                </div>
+                <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>void</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getConfig">
+        <div class="location">at         line 195</div>
+        <code>            protected        mixed
+    <strong>getConfig</strong>(string $key, mixed $default = null)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Return the configuration value.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$key</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>mixed</td>
+                <td>$default</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_createUrlConfWithRoot">
+        <div class="location">at         line 206</div>
+        <code>            protected        <abbr title="Licable\UrlConf">UrlConf</abbr>
+    <strong>createUrlConfWithRoot</strong>(string $root = null)
+        </code>
+    </h3>
+    <div class="details">
+            
+    
+
+                    <div class="method-description">
+                                    <p>Create a new url conf with a root url.</p>                                                </div>
+                <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$root</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Licable\UrlConf">UrlConf</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+            </div>
+            </div>
+
+    
+            </div>
+                <div id="footer">
+        Generated by <a href="http://sami.sensiolabs.org/">Sami, the API Documentation Generator</a>.
+    </div>
+
+        </div>
+    </div>
+    </body>
+
+</html>
