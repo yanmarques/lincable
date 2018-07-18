@@ -54,6 +54,23 @@ trait Lincable
     }
 
     /**
+     * Return the raw url saved on database.
+     *
+     * @throws \Lincable\Exceptions\LinkNotFoundException
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        if (isset($this->attributes[$this->getUrlField()])) {
+            return $this->attributes[$this->getUrlField()];
+        }
+
+        // The preview image could not be found for model.
+        throw new LinkNotFoundException("Model [{static::class}] does not a file linked with.");
+    }
+
+    /**
      * Link the model to a file.
      *
      * @param  mixed $file
