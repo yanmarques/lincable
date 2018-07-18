@@ -113,6 +113,35 @@ class LincableTest extends TestCase
     }
 
     /**
+     * Should return the relative url.
+     *
+     * @return void
+     */
+    public function testGetUrlReturnsRegisteredUrlOnUrlConf()
+    {
+        $this->setDisk('foo');
+        $this->setConfig('lincable.urls', [
+            Media::class => 'foo/:id'
+        ]);
+
+        $this->bindMediaManager();
+
+        // Create the random file with random text.
+        $file = new File(tap('/tmp/'.$this->getRandom('txt'), function ($file) {
+            touch($file);
+            file_put_contents($file, str_random());
+        }));
+        
+        $media = $this->createModel(['id' => 123]);
+        $media->link($file);
+        
+        $this->assertEquals(
+            str_after($media->preview, '/tmp/'),
+            $media->getUrl()
+        );
+    }
+
+    /**
      * Bind a new media manager to container.
      *
      * @return void
