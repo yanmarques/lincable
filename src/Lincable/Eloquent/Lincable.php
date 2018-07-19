@@ -2,32 +2,27 @@
 
 namespace Lincable\Eloquent;
 
-use RuntimeException;
 use Illuminate\Http\File;
 use Lincable\MediaManager;
 use Lincable\UrlGenerator;
 use Illuminate\Container\Container;
 use Lincable\Http\File\FileResolver;
 use Illuminate\Filesystem\Filesystem;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
-use League\Flysystem\Cached\CachedAdapter;
 use League\Flysystem\FileNotFoundException;
 use Lincable\Eloquent\Events\UploadSuccess;
 use Lincable\Eloquent\Events\UploadFailure;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Lincable\Exceptions\LinkNotFoundException;
-use League\Flysystem\Rackspace\RackspaceAdapter;
-use League\Flysystem\Adapter\Local as LocalAdapter;
 use Lincable\Exceptions\ConflictFileUploadHttpException;
 
 trait Lincable
 {
     /**
-     * The filesystem adapter.
+     * The lincable media manager instance.
      *
-     * @var \Illuminate\Filesystem\FilesystemAdapter
+     * @var \Lincable\MediaManager
      */
-    protected static $driver;
+    protected static $mediaManager;
 
     /**
      * Boot the trait with model.
@@ -36,8 +31,8 @@ trait Lincable
      */
     public static function bootLincable()
     {
-        // Set driver from media manager configuration.
-        static::$driver = Container::getInstance()->make(MediaManager::class)->getDisk();
+        // Set media manager instance from container.
+        static::setMediaManager(Container::getInstance()->make(MediaManager::class));
     }
 
     /**
@@ -54,6 +49,23 @@ trait Lincable
     }
 
     /**
+     * Return the raw url saved on database.
+     *
+     * @throws \Lincable\Exceptions\LinkNotFoundException
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        if (isset($this->attributes[$this->getUrlField()])) {
+            return $this->attributes[$this->getUrlField()];
+        }
+
+        // The preview image could not be found for model.
+        throw new LinkNotFoundException("Model [{static::class}] does not a file linked with.");
+    }
+
+    /**
      * Link the model to a file.
      *
      * @param  mixed $file
@@ -65,16 +77,13 @@ trait Lincable
         // be a symfony uploaded file or a file request, which
         // is preferable for linking.
         $file = FileResolver::resolve($file);
-
-        // Get the current media manager of application.
-        $mediaManager = Container::getInstance()->make(MediaManager::class);
         
         // Handle the file upload to the disk storage. All errors on upload are covered
         // for better handling upload events. One the upload has been executed with
         // success, the model is auto updated, setting the url_field model configuration
         // with the path to the new file. On error, an event of failure is dispatched and
         // a HTTPException is also reported, if not covered will return a 409 HTTP status.
-        $this->handleUpload($mediaManager->getDisk(), $mediaManager->buildUrlGenerator(), $file);
+        $this->handleUpload($file);
 
         return $this;
     }
@@ -87,7 +96,12 @@ trait Lincable
      */
     public function withMedia($callback)
     {
-        $file = $this->createTemporaryFile();
+        // Get the current media manager of application.
+        $mediaManager = static::getMediaManager();
+
+        // Create a temporary file with the model file contents. Provide the
+        // the default disk registered on media manager.
+        $file = $this->createTemporaryFile($mediaManager->getDisk());
         
         // Execute the callable with the temporary file. You also can receive the
         // model instance as second argument.
@@ -123,28 +137,59 @@ trait Lincable
     /**
      * Handle the file upload for the model.
      *
-     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
-     * @param  \Lincable\UrlGenerator $generator
-     * @param  \Illuminate\Http\File $file
+     * @param  \Illuminate\Http\File $media
+     * @param  \Lincable\MediaManager|null $mediaManager
      * @return void
      */
-    protected function handleUpload(FilesystemAdapter $storage, UrlGenerator $generator, File $media)
+    protected function handleUpload(File $media, MediaManager $mediaManager = null)
     {
+        // Use provided media manager instance or use global from model.
+        $mediaManager = $mediaManager ?: static::getMediaManager();
+
         // Get the original fillable array from model.
         $originalFillables = $this->getFillable();
-            
+        
+        // Add the lincable fields to fillable attributes, this way we can insert the url
+        // on model with the field previously configured.
+        $this->addLincableFields();
+
+        $this->wrapUpload($media, $mediaManager->getDisk(), $mediaManager->buildUrlGenerator());
+
+        // Re-set the original fillables.
+        $this->fillable($originalFillables);
+    }
+
+    /**
+     * Return the base url from the disk storage.
+     *
+     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
+     * @return string
+     */
+    protected function urlFromStorage(FilesystemAdapter $storage)
+    {
+        return $storage->url($this->getUrl());
+    }
+
+    /**
+     * Execute the upload operation, reporting correct events and exceptions.
+     *
+     * @param  \Illuminate\Http\File $media
+     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
+     * @param  \Lincable\UrlGenerator $generator
+     * @return void
+     */
+    protected function wrapUpload(File $media, FilesystemAdapter $storage, UrlGenerator $generator)
+    {
         // Set the model instance to seed the generator and generate
         // the url injecting the model attributes.
         $url = $generator->forModel($this)->generate();
 
-        $this->addLincableFields();
-
         rescue(function () use ($storage, $url, $media) {
             // Put the file on storage and get the full url to location.
-            $fileUrl = $storage->putFile($url, $media);
+            $url = $storage->putFile($url, $media);
             
             // Update the model with the url of the uploaded file.
-            $this->fill([$this->getUrlField() => $storage->url($fileUrl)]);
+            $this->fill([$this->getUrlField() => $url]);
 
             // Send the event that the upload has been executed with success.
             event(new UploadSuccess($this, $media));
@@ -157,100 +202,16 @@ trait Lincable
 
             $this->throwUploadFailureException();
         });
-
-        // Re-set the original fillables.
-        $this->fillable($originalFillables);
-    }
-
-    /**
-     * Return the link from model.
-     *
-     * @throws \Lincable\Exceptions\LinkNotFoundException
-     *
-     * @return string
-     */
-    protected function retrieveLink()
-    {
-        if ($link = $this->{$this->getUrlField()}) {
-
-            // Return the link file from model.
-            return $link;
-        }
-
-        // The preview image could not be found for model.
-        throw new LinkNotFoundException("Model [{static::class}] does not a file linked with.");
-    }
-
-    /**
-     * Return the url from the link storage.
-     *
-     * @return string
-     */
-    public function getUrl()
-    {
-        return str_after($this->retrieveLink(), $this->urlFromStorage($this->getDriver()));
-    }
-
-    /**
-     * Return the base url from the disk storage.
-     *
-     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
-     * @return string
-     */
-    protected function urlFromStorage(FilesystemAdapter $storage)
-    {
-        $adapter = $storage->getAdapter();
-
-        if ($adapter instanceof CachedAdapter) {
-            $adapter = $adapter->getAdapter();
-        }
-
-        // If an explicit url has been set on the disk configuration then we will use
-        // it as the url instead of the default path.
-        $url = $storage->getConfig()->get('url');
-
-        if ($adapter instanceof AwsS3Adapter) {
-            if ($url) {
-                return $url;
-            }
-
-            // This is a workaround to find the full url from the storage. We just use the same
-            // method to get url from a object, but we provide an empty string and then decode
-            // the url returned.
-            return rawurldecode($adapter->getClient()->getObjectUrl($adapter->getBucket(), ' '));
-        }
-    
-        if ($adapter instanceof LocalAdapter) {
-            if ($url) {
-                return $url;
-            }
-
-            // Return the default path configuration from filesystem adapter.
-            return '/storage/';
-        }
-            
-        throw new RuntimeException('This driver does not support retrieving URLs.');
-    }
-
-    /**
-     * Return the filesystem driver.
-     *
-     * @return \Illuminate\Filesystem\FilesystemAdapter
-     */
-    public function getDriver()
-    {
-        return static::$driver;
     }
 
     /**
      * Create a temporary file from the model link.
      *
+     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
      * @return \Illuminate\Http\File
      */
-    protected function createTemporaryFile()
+    protected function createTemporaryFile(FilesystemAdapter $storage)
     {
-        $storage = $this->getDriver();
-
         // Return the path url from storage driver.
         $url = $this->getUrl();
 
@@ -265,5 +226,43 @@ trait Lincable
         }
 
         throw new FileNotFoundException($url);
+    }
+
+    /**
+     * Return the manager instance.
+     *
+     * @return \Lincable\MediaManager
+     */
+    public static function getMediaManager()
+    {
+        return static::$mediaManager;
+    }
+
+    /**
+     * Return the manager instance.
+     *
+     * @return \Lincable\MediaManager
+     */
+    public static function setMediaManager(MediaManager $mediaManager)
+    {
+        static::$mediaManager = $mediaManager;
+    }
+
+    /**
+    * Dynamically retrieve attributes on the model.
+    *
+    * @param  string  $key
+    * @return mixed
+    */
+    public function __get($key)
+    {
+        if ($key == $this->getUrlField()) {
+            $mediaManager = static::getMediaManager();
+
+            // Create the full path from disk storage.
+            return $this->urlFromStorage($mediaManager->getDisk());
+        }
+        
+        return $this->getAttribute($key);
     }
 }
