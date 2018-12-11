@@ -27,7 +27,7 @@ abstract class FileRequest
 
     /**
      * The file parameter on request.
-     * 
+     *
      * @var string
      */
     protected $parameter;
@@ -105,7 +105,7 @@ abstract class FileRequest
 
     /**
      * Return the parameter name.
-     * 
+     *
      * @return string
      */
     public function getParameter()
@@ -115,7 +115,7 @@ abstract class FileRequest
 
     /**
      * Set the parameter name.
-     * 
+     *
      * @param  string $parameter
      * @return this
      */
@@ -128,7 +128,7 @@ abstract class FileRequest
 
     /**
      * Shortcut for @method setParameter.
-     * 
+     *
      * @param  string $parameter
      * @return this
      */

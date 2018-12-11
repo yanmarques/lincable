@@ -115,7 +115,7 @@ return [
             \Lincable\Formatters\DayFormatter::class,
             \Lincable\Formatters\MonthFormatter::class,
             \Lincable\Formatters\RandomFormatter::class,
-            \Lincable\Formatters\TimestampsFormatter::class
-        ]
-    ]
+            \Lincable\Formatters\TimestampsFormatter::class,
+        ],
+    ],
 ];
