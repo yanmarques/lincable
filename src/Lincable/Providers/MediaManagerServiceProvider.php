@@ -24,7 +24,7 @@ class MediaManagerServiceProvider extends ServiceProvider
     public function boot()
     {
         $configPath = __DIR__.'/../../../config/lincable.php';
-        
+
         $this->publishes([
             $configPath => config_path('lincable.php'),
         ]);

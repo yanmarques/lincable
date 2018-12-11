@@ -9,8 +9,8 @@ use Illuminate\Container\Container;
 use Lincable\Http\File\FileResolver;
 use Illuminate\Filesystem\Filesystem;
 use League\Flysystem\FileNotFoundException;
-use Lincable\Eloquent\Events\UploadSuccess;
 use Lincable\Eloquent\Events\UploadFailure;
+use Lincable\Eloquent\Events\UploadSuccess;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Lincable\Exceptions\LinkNotFoundException;
 use Lincable\Exceptions\ConflictFileUploadHttpException;
@@ -62,7 +62,7 @@ trait Lincable
         }
 
         // The preview image could not be found for model.
-        throw new LinkNotFoundException("Model [{static::class}] does not a file linked with.");
+        throw new LinkNotFoundException('Model [{static::class}] does not a file linked with.');
     }
 
     /**
@@ -77,7 +77,7 @@ trait Lincable
         // be a symfony uploaded file or a file request, which
         // is preferable for linking.
         $file = FileResolver::resolve($file);
-        
+
         // Handle the file upload to the disk storage. All errors on upload are covered
         // for better handling upload events. One the upload has been executed with
         // success, the model is auto updated, setting the url_field model configuration
@@ -102,7 +102,7 @@ trait Lincable
         // Create a temporary file with the model file contents. Provide the
         // the default disk registered on media manager.
         $file = $this->createTemporaryFile($mediaManager->getDisk());
-        
+
         // Execute the callable with the temporary file. You also can receive the
         // model instance as second argument.
         Container::getInstance()->call($callback, [$file, $this]);
@@ -148,7 +148,7 @@ trait Lincable
 
         // Get the original fillable array from model.
         $originalFillables = $this->getFillable();
-        
+
         // Add the lincable fields to fillable attributes, this way we can insert the url
         // on model with the field previously configured.
         $this->addLincableFields();
@@ -187,13 +187,13 @@ trait Lincable
         rescue(function () use ($storage, $url, $media) {
             // Put the file on storage and get the full url to location.
             $url = $storage->putFile($url, $media);
-            
+
             // Update the model with the url of the uploaded file.
             $this->fill([$this->getUrlField() => $url]);
 
             // Send the event that the upload has been executed with success.
             event(new UploadSuccess($this, $media));
-            
+
             $this->save();
         }, function () use ($media) {
 
@@ -249,11 +249,11 @@ trait Lincable
     }
 
     /**
-    * Dynamically retrieve attributes on the model.
-    *
-    * @param  string  $key
-    * @return mixed
-    */
+     * Dynamically retrieve attributes on the model.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
     public function __get($key)
     {
         if ($key == $this->getUrlField()) {
@@ -262,7 +262,7 @@ trait Lincable
             // Create the full path from disk storage.
             return $this->urlFromStorage($mediaManager->getDisk());
         }
-        
+
         return $this->getAttribute($key);
     }
 }
