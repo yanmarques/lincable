@@ -186,14 +186,18 @@ trait Lincable
 
         rescue(function () use ($storage, $url, $media) {
             // Put the file on storage and get the full url to location.
-            $url = $storage->putFile($url, $media);
-            
+            if (isset($this->attributes['file_url'])) {
+                $url = $storage->putFileAs($url, $media, $this->getFileName());
+            } else {
+                $url = $storage->putFile($url, $media);
+            }
+
             // Update the model with the url of the uploaded file.
             $this->fill([$this->getUrlField() => $url]);
 
             // Send the event that the upload has been executed with success.
             event(new UploadSuccess($this, $media));
-            
+
             $this->save();
         }, function () use ($media) {
 
@@ -202,6 +206,16 @@ trait Lincable
 
             $this->throwUploadFailureException();
         });
+    }
+
+    /**
+     * If the fire_url attribute already exists return the name of the file.
+     * 
+     * @return string
+     */
+    protected function getFileName()
+    {
+        return last(explode('/', $this->attributes['file_url'] ?: ''));
     }
 
     /**
