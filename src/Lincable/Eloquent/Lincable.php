@@ -188,7 +188,7 @@ trait Lincable
             $urlField = $this->getUrlField();
 
             // Put the file on storage and get the full url to location.
-            if (isset($this->attributes[$urlField])) {
+            if ($this->exists && array_get($this->attributes, $urlField)) {
                 $url = $storage->putFileAs($url, $media, $this->getFileName());
             } else {
                 $url = $storage->putFile($url, $media);
