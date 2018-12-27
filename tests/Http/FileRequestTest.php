@@ -4,10 +4,9 @@ namespace Tests\Lincable\Http;
 
 use Illuminate\Http\Request;
 use Tests\Lincable\TestCase;
-use Lincable\Http\FileRequest;
-use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\ValidationException;
+use Tests\Lincable\Http\FileRequests\FooFileRequest;
 
 class FileRequestTest extends TestCase
 {
@@ -19,7 +18,7 @@ class FileRequestTest extends TestCase
     public function testThatBootSetTheRequest()
     {
         $fileRequest = $this->createFileRequest('png');
-
+        
         // Assert the request on foo file.
         $this->assertInstanceOf(
             Request::class,
@@ -35,7 +34,7 @@ class FileRequestTest extends TestCase
     public function testThatBootSetThePngFile()
     {
         $png = $this->getRandom('png');
-        $request = $this->createRequest('file', $png);
+        $request = $this->createRequest('generic', $png);
         $file = $this->createFileRequest('png', false);
         $file->boot($request);
         
@@ -76,7 +75,7 @@ class FileRequestTest extends TestCase
     public function testThatBootThrowsAValidationException()
     {
         $invalidFile = $this->getRandom('xyz');
-        $request = $this->createRequest('file', $invalidFile);
+        $request = $this->createRequest('generic', $invalidFile);
         $fileRequest = $this->createFileRequest('png', false);
         $this->expectException(ValidationException::class);
         $fileRequest->boot($request);
@@ -95,7 +94,7 @@ class FileRequestTest extends TestCase
         $destination = str_finish('/tmp/'.str_random(), '/');
         $foo = new FooFileRequest($destination);
         $foo->boot($request);
-        $file = $foo->prepareFile(new Container);
+        $file = app()->call([$foo, 'prepareFile']);
         $expected = $destination.$file->getFilename();
         $this->assertEquals($expected, $file->getPathName());
         (new Filesystem)->deleteDirectory($destination);
@@ -140,46 +139,5 @@ class FileRequestTest extends TestCase
         $expected = 'bar';
         $foo->as($expected);
         $this->assertEquals($expected, $foo->getParameter());
-    }
-}
-
-class FooFileRequest extends FileRequest
-{
-    /**
-     * File to move the file before send.
-     * 
-     * @var string
-     */
-    private $destination;
-
-    /**
-     * 
-     * 
-     * @param  string $file
-     * @return void
-     */
-    public function __construct(string $destination)
-    {
-        $this->destination = $destination;
-    }
-
-    /**
-     * Rules to validate the file on request.
-     *
-     * @return mixed
-     */
-    protected function rules()
-    {
-        return 'mimes:txt';
-    }
-
-    /**
-     * Executed before sending the file.
-     * 
-     * @return mixed
-     */
-    public function beforeSend($file)
-    {
-        return $file->move($this->destination);
     }
 }

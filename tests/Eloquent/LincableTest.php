@@ -1,27 +1,27 @@
 <?php
 
-namespace Tests\Lincable;
+namespace Tests\Eloquent;
 
-use Mockery;
+use Event;
+use Storage;
 use Illuminate\Http\File;
-use Lincable\UrlCompiler;
-use Lincable\MediaManager;
 use Tests\Lincable\TestCase;
 use Lincable\Eloquent\Lincable;
-use Illuminate\Container\Container;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\PostgresConnection;
+use Tests\Lincable\Models\Media;
+use Illuminate\Http\UploadedFile;
 use Lincable\Eloquent\Events\UploadSuccess;
-use Lincable\Eloquent\Events\UploadFailure;
-use Illuminate\Database\ConnectionResolver;
-use Illuminate\Database\Query\Grammars\PostgresGrammar;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Lincable\Exceptions\ConflictFileUploadHttpException;
-use Illuminate\Database\Query\Processors\PostgresProcessor;
 
 class LincableTest extends TestCase
 {
+    use DatabaseMigrations;
+
+    public function setUp()
+    {
+        parent::setUp();
+    }
+
     /**
      * Should link the file with model and create store the file.
      *
@@ -31,24 +31,21 @@ class LincableTest extends TestCase
     {
         Event::fake();
 
-        $this->setDisk('foo');
-        $this->setConfig('lincable.urls', [
+        $this->app['config']->set('lincable.urls', [
             Media::class => 'foo/:year/:month/:id'
         ]);
-
-        $this->bindMediaManager();
     
         // Create the random file with random text.
-        $file = new File(tap('/tmp/'.$this->getRandom('txt'), function ($file) {
-            touch($file);
-            file_put_contents($file, str_random());
-        }));
+        $file = UploadedFile::fake()->create(
+            $this->getRandom('txt'),
+            10
+        );
         
-        $media = $this->createModel(['id' => 123]);
+        $media = new Media(['id' => 123]);
         $media->link($file);
-
+        
         Event::assertDispatched(UploadSuccess::class);
-        $this->assertTrue(file_exists($media->preview));
+        $this->assertTrue(Storage::exists($media->getUrl()));
     }
 
     /**
@@ -58,25 +55,17 @@ class LincableTest extends TestCase
      */
     public function testLinkWithInvalidFile()
     {
-        Event::fake();
-
-        $this->setDisk('foo');
-        $this->setConfig('lincable.urls', [
+        $this->app['config']->set('lincable.urls', [
             Media::class => 'foo/:year/:month/:id'
         ]);
-
-        $this->bindMediaManager();
     
         // Create the random file with random text.
-        $file = new File('/tmp/'.$this->getRandom('txt'), false);
+        $file = new File(str_random(), false);
         
-        $media = $this->createModel(['id' => 123]);
-
+        $media = new Media(['id' => 123]);
+        
         $this->expectException(ConflictFileUploadHttpException::class);
         $media->link($file);
-
-        Event::assertDispatched(UploadFailure::class);
-        $this->assertFalse(file_exists($media->preview));
     }
 
     /**
@@ -87,24 +76,16 @@ class LincableTest extends TestCase
      */
     public function testWithMediaGetTheLinkedFile()
     {
-        Event::fake();
-
-        $this->setDisk('foo');
-        $this->setConfig('lincable.urls', [
+        $this->app['config']->set('lincable.urls', [
             Media::class => 'foo/:year/:month/:id'
         ]);
-
-        $this->bindMediaManager();
 
         $expected = str_random();
     
         // Create the random file with random text.
-        $file = new File(tap('/tmp/'.$this->getRandom('txt'), function ($file) use ($expected) {
-            touch($file);
-            file_put_contents($file, $expected);
-        }));
+        $file = $this->createFile($expected);
         
-        $media = $this->createModel(['id' => 123]);
+        $media = new Media(['id' => 123]);
         $media->link($file);
 
         $media->withMedia(function ($file) use ($expected) {
@@ -113,41 +94,51 @@ class LincableTest extends TestCase
     }
 
     /**
-     * Bind a new media manager to container.
+     * Should return the relative url.
      *
      * @return void
      */
-    protected function bindMediaManager()
+    public function testGetUrlReturnsRegisteredUrlOnUrlConf()
     {
-        Container::getInstance()->singleton(MediaManager::class, function ($app) {
-            return new MediaManager($app, new UrlCompiler);
-        });
+        $this->app['config']->set('lincable.urls', [
+            Media::class => 'foo/:id'
+        ]);
+
+        // Create the random file with random text.
+        $file = $this->createFile(str_random());
+        
+        $media = new Media(['id' => 123]);
+        $media->link($file);
+        
+        $this->assertContains($media->getUrl(), $media->preview);
     }
 
     /**
-     * Return a mocked model object.
+     * Should re-link the model to another file, keeping
+     * the same url.
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return void
      */
-    protected function createModel(array $attributes)
+    public function testUseModelUrlWhenAlreadySet()
     {
-        $media = new Media($attributes);
-        $mockObject = Mockery::mock(PostgresConnection::class);
-        $mockObject->shouldReceive('getQueryGrammar')->andReturn(new PostgresGrammar);
-        $mockObject->shouldReceive('getPostProcessor')->andReturn(new PostgresProcessor);
-        $mockObject->shouldReceive('selectFromWriteConnection')->andReturn([$attributes]);
-        $connectionResolver = new ConnectionResolver(['test' => $mockObject]);
-        $media->setConnectionResolver($connectionResolver);
-        $media->setConnection('test');
-        return $media;
+        $this->app['config']->set('lincable.urls', [
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        // Create the random file with random text.
+        $file = $this->createFile(str_random());
+        
+        $media = new Media(['id' => 123]);
+        $media->link($file);
+
+        // Get the old url.
+        $oldUrl = $media->preview;
+        
+        // Create a new file to link with.
+        $newlyFile = $this->createFile(str_random());
+
+        $media->link($newlyFile);
+        
+        $this->assertEquals($oldUrl, $media->preview);
     }
-}
-
-class Media extends Model
-{
-    use Lincable;
-
-    protected $fillable = [
-        'id'
-    ];
 }
