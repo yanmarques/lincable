@@ -3,22 +3,25 @@
 namespace Tests\Lincable;
 
 use Exception;
-use Carbon\Carbon;
-use Lincable\UrlCompiler;
 use Lincable\MediaManager;
 use Lincable\UrlGenerator;
 use Lincable\Parsers\Parser;
 use Lincable\Parsers\Options;
-use Illuminate\Config\Repository;
-use Illuminate\Container\Container;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+use Tests\Lincable\Parsers\DotParser;
+use Tests\Lincable\Models\Foo as FooModel;
+use Tests\Lincable\Formatters\FooFormatter;
 use Illuminate\Filesystem\FilesystemAdapter;
-use Lincable\Contracts\Parsers\ParameterInterface;
 use Lincable\Exceptions\ConfModelNotFoundException;
 
 class MediaManagerTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        app('config')->set('lincable.models.namespace', 'Tests\Lincable');
+    }
+
     /**
      * Should return the url generator with the configuration loaded.
      *
@@ -26,8 +29,7 @@ class MediaManagerTest extends TestCase
      */
     public function testBuildUrlGeneratorWithCompiler()
     {
-        $this->setDisk('s3');
-        $urlGenerator = $this->createMediaManager()->buildUrlGenerator();
+        $urlGenerator = app(MediaManager::class)->buildUrlGenerator();
         $this->assertInstanceOf(UrlGenerator::class, $urlGenerator);
     }
 
@@ -38,8 +40,8 @@ class MediaManagerTest extends TestCase
      */
     public function testGetDiskWithNewConfiguration()
     {
-        $this->setDisk('foo');
-        $disk = $this->createMediaManager()->getDisk();
+        $this->setDisk('local');
+        $disk = app(MediaManager::class)->getDisk();
         $this->assertInstanceOf(FilesystemAdapter::class, $disk);
     }
 
@@ -56,11 +58,10 @@ class MediaManagerTest extends TestCase
             ]
         ];
         
-        $this->setConfig('lincable.parsers', $parsers);
+        $this->app['config']->set('lincable.parsers', $parsers);
         $defaultParsers = config('lincable.default_parsers');
-        $this->setDisk('s3');
 
-        $urlParsers = $this->createMediaManager()->buildUrlGenerator()->getParsers();
+        $urlParsers = app(MediaManager::class)->buildUrlGenerator()->getParsers();
         $urlParsers = $urlParsers->map(function ($parser) {
             return [
                 get_class($parser) => $parser->getFormatters()->values()->toArray()
@@ -78,14 +79,12 @@ class MediaManagerTest extends TestCase
     public function testModelsConfigurationWithDotNotation()
     {
         $expected = [
-            'lincable.fooModel' => '/bar/baz'
+            'models.foo' => '/bar/baz'
         ];
         
-        $this->setConfig('lincable.models.namespace', 'tests');
-        $this->setConfig('lincable.urls', $expected);
-        $this->setDisk('s3');
+        $this->app['config']->set('lincable.urls', $expected);
 
-        $conf = $this->createMediaManager()->getUrlConf();
+        $conf = app(MediaManager::class)->getUrlConf();
         
         $this->assertEquals($conf->get(FooModel::class), head($expected));
     }
@@ -98,15 +97,15 @@ class MediaManagerTest extends TestCase
     public function testModelsConfigurationWithRoot()
     {
         $expected = [
-            'lincable.fooModel' => 'bar/baz'
+            'models.foo' => 'bar/baz'
         ];
+        
         $root = 'foo';
-        $this->setConfig('lincable.models.namespace', 'tests');
-        $this->setConfig('lincable.root', $root);
-        $this->setConfig('lincable.urls', $expected);
-        $this->setDisk('s3');
 
-        $conf = $this->createMediaManager()->getUrlConf();
+        $this->app['config']->set('lincable.root', $root);
+        $this->app['config']->set('lincable.urls', $expected);
+
+        $conf = app(MediaManager::class)->getUrlConf();
         
         $this->assertEquals($conf->get(FooModel::class), $root.'/'.head($expected));
     }
@@ -118,11 +117,11 @@ class MediaManagerTest extends TestCase
      */
     public function testConfiguringInvalidModelThrowException()
     {
-        $this->setConfig('lincable.urls', ['Example' => 'baz']);
-        $this->setDisk('s3');
+        $this->app['config']->set('lincable.urls', ['Example' => 'baz']);
         
         $this->expectException(ConfModelNotFoundException::class);
-        $this->createMediaManager();
+        
+        app(MediaManager::class);
     }
 
     /**
@@ -132,11 +131,11 @@ class MediaManagerTest extends TestCase
      */
     public function testConfiguringNonParserOnParsersThrowException()
     {
-        $this->setConfig('lincable.parsers', [FooFormatter::class]);
-        $this->setDisk('s3');
+        $this->app['config']->set('lincable.parsers', [FooFormatter::class]);
 
         $this->expectException(Exception::class);
-        $this->createMediaManager();
+        
+        app(MediaManager::class);
     }
 
     /**
@@ -147,70 +146,20 @@ class MediaManagerTest extends TestCase
     public function testGenerateUrlForConfiguredModel()
     {
         $root = 'root';
-        $this->setConfig('lincable.root', $root);
-        $this->setConfig('lincable.urls', [
+
+        $this->app['config']->set('lincable.root', $root);
+        $this->app['config']->set('lincable.urls', [
             FooModel::class => 'foo/:year/:id'
         ]);
-        $this->setDisk('s3');
 
-        $model = new FooModel([
-            'id' => 123
-        ]);
+        $model = new FooModel(['id' => 123]);
 
-        $urlGenerator = $this->createMediaManager()->buildUrlGenerator();
+        $urlGenerator = app(MediaManager::class)->buildUrlGenerator();
         $url = $urlGenerator->forModel($model)->generate();
         
         $this->assertEquals(
-            sprintf('%s/foo/%s/%s', $root, Carbon::now()->year, $model->id),
+            sprintf('%s/foo/%s/%s', $root, now()->year, $model->id),
             $url
         );
-    }
-
-    /**
-     * Return a media manager instance.
-     *
-     * @return \Lincable\MediaManager
-     */
-    protected function createMediaManager()
-    {
-        return new MediaManager(Container::getInstance(), new UrlCompiler);
-    }
-}
-
-class DotParser extends Parser
-{
-    /**
-     * Create a new class instance.
-     *
-     * @param  Illuminate\Contracts\Container\Container|null $app
-     * @return void
-     */
-    public function __construct(Container $app = null)
-    {
-        $this->boot($app);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function parseMatches(array $matches): ParameterInterface
-    {
-        return new Options(last($matches));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getDynamicPattern(): string
-    {
-        return '/^([a-zA-Z_]+)\.([a-zA-Z_]+)$/';
-    }
-}
-
-class FooFormatter
-{
-    public function format()
-    {
-        return 'foo';
     }
 }

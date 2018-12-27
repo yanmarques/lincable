@@ -2,22 +2,23 @@
 
 namespace Tests\Lincable;
 
+use Storage;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Lincable\Http\FileRequest;
 use Illuminate\Config\Repository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Factory;
 use Illuminate\Container\Container;
-use Illuminate\Translation\Translator;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Translation\ArrayLoader;
-use Illuminate\Events\EventServiceProvider;
 use Illuminate\Filesystem\FilesystemManager;
 use PHPUnit\Framework\TestCase as UnitTestCase;
-use Illuminate\Contracts\Container\Container as ContainerInterface;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Tests\Lincable\Http\FileRequests\GenericFileRequest;
 
-class TestCase extends UnitTestCase
+class TestCase extends OrchestraTestCase
 {
+    protected $temps = [];
+
     /**
     * Set the test configuration.
     *
@@ -25,19 +26,26 @@ class TestCase extends UnitTestCase
     */
     public function setUp()
     {
-        $this->registerRequestValidateMacro();
-        $this->registerEvents();
-        $container = Container::getInstance();
-        $container->bind('config', function () {
-            return $this->getConfiguration();
-        });
-        $container->bind(ContainerInterface::class, Container::class);
-        $container->singleton('filesystem', function ($app) {
-            return new FilesystemManager($app);
-        });
-        Storage::setFacadeApplication($container);
-        Storage::fake('s3');
+        parent::setUp();
+
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+
+        Storage::fake('local');
+
+        $this->setDisk('local');
     }
+
+    /**
+     * 
+     * 
+     * @return void
+     */
+    public function tearDown()
+    {
+        foreach ($this->temps as $file) {
+            unlink($file);
+        }
+    }   
 
     /**
      * Return a random filename with and extension.
@@ -59,8 +67,11 @@ class TestCase extends UnitTestCase
      */
     public function createRequest(string $file, string $originalName)
     {
-        $request =  Request::capture();
-        $request->files->set($file, UploadedFile::fake()->create($originalName));
+        $request =  $this->app['request'];
+        $request->files->set(
+            $file, 
+            UploadedFile::fake()->create($originalName)
+        );
         return $request;
     }
 
@@ -71,14 +82,14 @@ class TestCase extends UnitTestCase
      * @param  bool $boot
      * @return \Tests\Lincable\FileFileRequest
      */
-    public function createFileRequest(string $extension, bool $boot = true)
+    public function createFileRequest(string $extension, bool $boot = null)
     {
-        FileFileRequest::$extension = $extension;
-        $file = new FileFileRequest;
+        GenericFileRequest::$extension = $extension;
+        $file = new GenericFileRequest;
 
-        if ($boot) {
+        if ($boot || is_null($boot)) {
             $pathName = $this->getRandom($extension);
-            $request = $this->createRequest('file', $pathName);
+            $request = $this->createRequest('generic', $pathName);
             $file->boot($request);
         }
 
@@ -86,61 +97,16 @@ class TestCase extends UnitTestCase
     }
 
     /**
-     * Register the macro functions on request for validation.
+     * Define environment setup.
      *
+     * @param  \Illuminate\Foundation\Application  $app
      * @return void
      */
-    protected function registerRequestValidateMacro()
-    {
-        Request::macro('makeValidator', function () {
-            $loader = new ArrayLoader;
-            $translator = new Translator($loader, 'eng-us');
-            $app = new Container;
-            return new Factory($translator, $app);
-        });
-
-        Request::macro('validate', function (array $rules) {
-            return $this->makeValidator()->validate($this->all(), $rules);
-        });
-    }
-
-    /**
-     * Return the repository configuration.
-     *
-     * @return \Illuminate\Config\Repository
-     */
-    protected function getConfiguration()
+    protected function getEnvironmentSetUp($app)
     {
         $configuration = require __DIR__.'/../config/lincable.php';
-        return new Repository([
-            'lincable' => $configuration,
-            'filesystems.disks.s3' => [
-                'driver' => 's3',
-                'key' => 'fake',
-                'secret' => 'fake',
-                'region' => 'fake',
-                'bucket' => 'fake',
-            ],
-            'filesystems.disks.local' => [
-                'driver' => 'local',
-                'root' => '/tmp'
-            ],
-            'filesystems.default' => 'local'
-        ]);
-    }
 
-    /**
-     * Set a new configuration for application.
-     *
-     * @param  string $key
-     * @param  mixed $value
-     * @return void
-     */
-    protected function setConfig(string $key, $value)
-    {
-        $config = Container::getInstance()['config']->all();
-        data_set($config, $key, $value);
-        Container::getInstance()['config'] = new Repository($config);
+        $app['config']->set('lincable', $configuration);
     }
 
     /**
@@ -151,41 +117,42 @@ class TestCase extends UnitTestCase
      */
     protected function setDisk(string $disk)
     {
-        $this->setConfig('lincable.disk', $disk);
-        Storage::setFacadeApplication(Container::getInstance());
-        Storage::set($disk, Storage::createLocalDriver(['root' => storage_path(), 'url' => '/tmp']));
-
-        // Rebind the filesystem singleton.
-        Container::getInstance()['filesystem'] = Storage::getFacadeRoot();
+        $this->app['config']->set('lincable.disk', $disk);
     }
 
     /**
-     * Register the events service provider.
+     * Create a temporary file with the data.
      *
-     * @return void
+     * @param  mixed  $data
+     * @param  string  $extension
+     * @return \Illuminate\Http\File
      */
-    protected function registerEvents()
+    protected function createFile($data, string $extension = 'txt') 
     {
-        (new EventServiceProvider(Container::getInstance()))->register();
+        return new File(tap(
+            $this->registerTempFile($this->getRandom($extension)), 
+            function ($file) use ($data) {
+                file_put_contents($file, $data);
+            }
+        ));
     }
-}
-
-class FileFileRequest extends FileRequest
-{
-    /**
-     * The extension rule.
-     *
-     * @var string
-     */
-    public static $extension;
 
     /**
-     * Rules to validate the file on request.
+     * Register and create a temporary file.
      *
-     * @return mixed
+     * @param  string  $file
+     * @return string
      */
-    protected function rules()
+    protected function registerTempFile(string $file) 
     {
-        return 'mimes:'.static::$extension;
+        $file = str_start($file, '/tmp/');
+        touch($file);
+        $this->temps[] = $file;
+        return $file;
+    }
+
+    protected function getPackageProviders()
+    {
+        return [\Lincable\Providers\MediaManagerServiceProvider::class];
     }
 }

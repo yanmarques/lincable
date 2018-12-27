@@ -17,6 +17,7 @@ class MediaManagerServiceProviderTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
         $this->provider = new MediaManagerServiceProvider(Container::getInstance());
     }
 
@@ -28,11 +29,9 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testRegisterWillResolveMediaManagerSingleton()
     {
-        $this->setDisk('s3');
         $this->provider->register();
         
-        $container = Container::getInstance();
-        $this->assertInstanceOf(MediaManager::class, $container->make(MediaManager::class));
+        $this->assertInstanceOf(MediaManager::class, app(MediaManager::class));
     }
 
     /**
@@ -42,7 +41,6 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testBootSubscriberUploadSubscriberFromConfiguration()
     {
-        $this->setDisk('s3');
         $this->provider->boot();
 
         $subscribers = Container::getInstance()['events']->getListeners(UploadSuccess::class);
@@ -60,10 +58,10 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testBootWillRegisterTheConfigurationFile()
     {
+        $this->setDisk('s3');
         $this->provider->boot();
         $config = __DIR__.'/../../config/lincable.php';
         
-        $container = Container::getInstance();
-        $this->assertEquals(require $config, $container['config']['lincable']);
+        $this->assertEquals(require $config, $this->app['config']['lincable']);
     }
 }

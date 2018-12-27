@@ -2,13 +2,13 @@
 
 namespace Tests\Lincable\Parsers;
 
-use Lincable\Parsers\Parser;
-use Lincable\Parsers\Options;
-use PHPUnit\Framework\TestCase;
-use Illuminate\Container\Container;
-use Lincable\Contracts\Formatters\Formatter;
+use Tests\Lincable\TestCase;
+use Tests\Lincable\Formatters\Param;
+use Tests\Lincable\Formatters\BarFormatter;
+use Tests\Lincable\Formatters\FooFormatter;
+use Tests\Lincable\Formatters\ArgumentFormatter;
+use Tests\Lincable\Formatters\ALongNameFormatter;
 use Lincable\Exceptions\NotDynamicOptionException;
-use Lincable\Contracts\Parsers\ParameterInterface;
 
 class ParserTest extends TestCase
 {
@@ -16,8 +16,9 @@ class ParserTest extends TestCase
 
     public function setUp()
     {
-        $container = new Container;
-        $this->parser = new DotParser($container);
+        parent::setUp();
+
+        $this->parser = app(DotParser::class);
     }
 
     /**
@@ -98,7 +99,7 @@ class ParserTest extends TestCase
     public function testThatFindFormatterResolvesTheArgumentFormatter()
     {
         $expected = 'foo';
-        $container = new Container;
+        $container = app();
 
         // Bind the Param class instance to container for further 
         // ArgumentFormatter class resolution.
@@ -116,106 +117,5 @@ class ParserTest extends TestCase
         $result = $this->parser->parse('id.argument');
 
         $this->assertEquals($expected, $result);
-    }
-}
-
-class DotParser extends Parser
-{
-    /**
-     * Create a new class instance.
-     * 
-     * @param  Illuminate\Contracts\Container\Container|null $app
-     * @return void
-     */
-    public function __construct(Container $app = null)
-    {
-        $this->boot($app);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function parseMatches(array $matches): ParameterInterface
-    {
-        return new Options(last($matches));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getDynamicPattern(): string
-    {
-        return '/^([a-zA-Z_]+)\.([a-zA-Z_]+)$/';
-    }
-}
-
-class FooFormatter
-{
-    public function format()
-    {
-        return 'foo';
-    }
-}
-
-class BarFormatter
-{
-    public function format()
-    {
-        return 'bar';
-    }
-}
-
-class ALongNameFormatter implements Formatter
-{
-    public function format($value = null)
-    {
-        return 'A long text returned here';
-    }
-}
-
-class ArgumentFormatter implements Formatter
-{
-    private $param;
-
-    /**
-     * Create a new class instance.
-     * 
-     * @param  \Tests\Param $param
-     * @return void
-     */
-    public function __construct(Param $param)
-    {
-        $this->param = $param;
-    }
-
-    public function format($value = null)
-    {
-        return $this->param->getValue();
-    }
-}
-
-class Param
-{
-    private $value;
-
-    /**
-     * Create a new class instance. 
-     *
-     * @param  mixed $value
-     * @return void
-     */
-    public function __construct($value)
-    {
-        $this->value = $value;
-    }
-
-    /**
-     * Return the value parameter.
-     * 
-     * @return mixed
-     */
-    public function getValue()
-    {
-        return $this->value;        
     }
 }
