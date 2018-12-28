@@ -75,10 +75,10 @@ abstract class Parser
     /**
      * Parse an option through formatters.
      *
-     * @throws Lincable\Exceptions\NotDynamicOption
-     *
      * @param  string $option
      * @return mixed
+     * 
+     * @throws Lincable\Exceptions\NotDynamicOption
      */
     public function parse(string $option)
     {

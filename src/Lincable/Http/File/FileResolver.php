@@ -16,10 +16,10 @@ class FileResolver
      * Resolve the file object to a symfony file, handling the
      * file request operations.
      *
-     * @throws \Lincable\Exceptions\NotResolvableFileException
-     *
      * @param  mixed $file
      * @return \Illuminate\Http\File
+     * 
+     * @throws \Lincable\Exceptions\NotResolvableFileException
      */
     public static function resolve($file)
     {

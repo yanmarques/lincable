@@ -119,9 +119,9 @@ class UrlCompiler implements Compiler
     /**
      * Get the current parser used on compiler.
      *
-     * @throws \Exception
-     *
      * @return \Lincable\Parsers\Parser
+     * 
+     * @throws \Exception
      */
     public function getParser(): Parser
     {

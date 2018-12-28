@@ -89,10 +89,10 @@ class UrlGenerator
      * Guard the model setting verifying wheter the model is also configured
      * on url configuration.
      *
-     * @throws \Lincable\Exceptions\NoModelConfException
-     *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @return void
+     * 
+     * @throws \Lincable\Exceptions\NoModelConfException
      */
     protected function guardModel(Model $model)
     {
@@ -158,9 +158,9 @@ class UrlGenerator
     /**
      * Return the model instance.
      *
-     * @throws \Exception
-     *
      * @return \Illuminate\Database\Eloquent\Model
+     * 
+     * @throws \Exception
      */
     public function getModel()
     {
