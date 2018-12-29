@@ -45,7 +45,7 @@ class LincableTest extends TestCase
         $media->link($file);
         
         Event::assertDispatched(UploadSuccess::class);
-        $this->assertTrue(Storage::exists($media->getUrl()));
+        $this->assertTrue(Storage::exists($media->getRawUrl()));
     }
 
     /**
@@ -89,7 +89,7 @@ class LincableTest extends TestCase
         $media->link($file);
 
         $media->withMedia(function ($file) use ($expected) {
-            $this->assertEquals($expected, file_get_contents($file->path()));
+            $this->assertEquals($expected, \file_get_contents($file->path()));
         });
     }
 
@@ -110,7 +110,7 @@ class LincableTest extends TestCase
         $media = new Media(['id' => 123]);
         $media->link($file);
         
-        $this->assertContains($media->getUrl(), $media->preview);
+        $this->assertContains($media->getRawUrl(), $media->preview);
     }
 
     /**
@@ -140,5 +140,54 @@ class LincableTest extends TestCase
         $media->link($newlyFile);
         
         $this->assertEquals($oldUrl, $media->preview);
+    }
+
+    /**
+     * Should replicate model data cloning the file.
+     * 
+     * @return void
+     */
+    public function testReplicateModelAndCloneMedia()
+    {
+        $this->app['config']->set('lincable.urls', [
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $expected = str_random();
+        
+        $media = new Media(['id' => 123]);
+        $media->link($this->createFile($expected));
+
+        $clone = $media->replicate();
+        $clone->save();
+
+        $this->assertNotEquals($media->getRawUrl(), $clone->getRawUrl());
+
+        $clone->withMedia(function ($file) use ($expected) {
+            $this->assertEquals($expected, file_get_contents($file->path()));
+        });
+    }
+
+    /**
+     * Should clone the model keeping the source model filename.
+     * 
+     * @return void
+     */
+    public function testReplicateWithPreserveNameEnabled()
+    {
+        $this->app['config']->set('lincable.urls', [
+            Media::class => 'foo/:id'
+        ]);
+    
+        $expected = str_random();
+        
+        $media = new Media(['id' => 123]);
+        $media->link($this->createFile($expected));
+
+        $clone = $media->replicate();
+        $clone->preserveName = true;
+        $clone->save();
+        
+        $this->assertEquals($media->getFileName(), $clone->getFileName());
     }
 }

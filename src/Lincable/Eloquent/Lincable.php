@@ -2,67 +2,34 @@
 
 namespace Lincable\Eloquent;
 
-use Illuminate\Http\File;
+use File;
 use Lincable\MediaManager;
-use Lincable\UrlGenerator;
 use Illuminate\Container\Container;
 use Lincable\Http\File\FileResolver;
-use Illuminate\Filesystem\Filesystem;
-use League\Flysystem\FileNotFoundException;
-use Lincable\Eloquent\Events\UploadFailure;
-use Lincable\Eloquent\Events\UploadSuccess;
-use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Http\File as IlluminateFile;
 use Lincable\Exceptions\LinkNotFoundException;
-use Lincable\Exceptions\ConflictFileUploadHttpException;
 
 trait Lincable
 {
+    use CloneLinks;
+
     /**
-     * The lincable media manager instance.
+     * Resolved media manager instance.
      *
      * @var \Lincable\MediaManager
      */
     protected static $mediaManager;
 
     /**
-     * Boot the trait with model.
-     *
-     * @return void
-     */
-    public static function bootLincable()
-    {
-        // Set media manager instance from container.
-        static::setMediaManager(Container::getInstance()->make(MediaManager::class));
-    }
-
-    /**
-     * Add the lincable fields to model fillables.
-     *
-     * @return void
-     */
-    public function addLincableFields()
-    {
-        // Get the model fillable fields.
-        $fillables = $this->getFillable();
-
-        $this->fillable(array_merge($fillables, (array) $this->getUrlField()));
-    }
-
-    /**
      * Return the raw url saved on database.
      *
-     * @throws \Lincable\Exceptions\LinkNotFoundException
-     *
      * @return string
+     * 
+     * @throws \Lincable\Exceptions\LinkNotFoundException
      */
-    public function getUrl()
+    public function getRawUrl()
     {
-        if (isset($this->attributes[$this->getUrlField()])) {
-            return $this->attributes[$this->getUrlField()];
-        }
-
-        // The preview image could not be found for model.
-        throw new LinkNotFoundException('Model [{static::class}] does not a file linked with.');
+        return $this->getAttributeFromArray($this->getUrlField());
     }
 
     /**
@@ -79,11 +46,11 @@ trait Lincable
         $file = FileResolver::resolve($file);
 
         // Handle the file upload to the disk storage. All errors on upload are covered
-        // for better handling upload events. One the upload has been executed with
+        // for better handling upload events. Once the upload has been executed with
         // success, the model is auto updated, setting the url_field model configuration
         // with the path to the new file. On error, an event of failure is dispatched and
         // a HTTPException is also reported, if not covered will return a 409 HTTP status.
-        $this->handleUpload($file);
+        static::getMediaManager()->upload($file, $this)->save();
 
         return $this;
     }
@@ -96,19 +63,26 @@ trait Lincable
      */
     public function withMedia($callback)
     {
+        $this->ensureHasUrl();
+
         // Get the current media manager of application.
         $mediaManager = static::getMediaManager();
 
         // Create a temporary file with the model file contents. Provide the
         // the default disk registered on media manager.
-        $file = $this->createTemporaryFile($mediaManager->getDisk());
+        $file = $mediaManager->get($this);
 
-        // Execute the callable with the temporary file. You also can receive the
-        // model instance as second argument.
-        Container::getInstance()->call($callback, [$file, $this]);
+        try {
+            // Execute the callable with the temporary file. You also can receive the
+            // model instance as second argument.
+            Container::getInstance()->call($callback, [$file, $this]);
+        } catch (\Exception $ex) {
+            // Delete the temporary file wheter it exists.
+            File::delete($file->path());
 
-        // Delete the temporary file wheter it exists.
-        (new Filesystem)->delete($file->path());
+            // Throw exception again to show developer something bad happened.
+            throw $ex;
+        }
 
         return $this;
     }
@@ -124,161 +98,96 @@ trait Lincable
     }
 
     /**
-     * Throw a HTTP exception indicating that file could not be uploaded.
+     * Return the name of the file.
      *
-     * @throws \Lincable\Exceptions\ConflictFileUploadHttpException
-     * @return void
-     */
-    protected function throwUploadFailureException()
-    {
-        throw new ConflictFileUploadHttpException('Could not store the file on disk.');
-    }
-
-    /**
-     * Handle the file upload for the model.
-     *
-     * @param  \Illuminate\Http\File $media
-     * @param  \Lincable\MediaManager|null $mediaManager
-     * @return void
-     */
-    protected function handleUpload(File $media, MediaManager $mediaManager = null)
-    {
-        // Use provided media manager instance or use global from model.
-        $mediaManager = $mediaManager ?: static::getMediaManager();
-
-        // Get the original fillable array from model.
-        $originalFillables = $this->getFillable();
-
-        // Add the lincable fields to fillable attributes, this way we can insert the url
-        // on model with the field previously configured.
-        $this->addLincableFields();
-
-        $this->wrapUpload($media, $mediaManager->getDisk(), $mediaManager->buildUrlGenerator());
-
-        // Re-set the original fillables.
-        $this->fillable($originalFillables);
-    }
-
-    /**
-     * Return the base url from the disk storage.
-     *
-     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
      * @return string
      */
-    protected function urlFromStorage(FilesystemAdapter $storage)
+    public function getFileName()
     {
-        return $storage->url($this->getUrl());
+        $this->ensureHasUrl();
+        return pathinfo($this->getRawUrl(), PATHINFO_BASENAME);
     }
 
     /**
-     * Execute the upload operation, reporting correct events and exceptions.
+     * Return the file extension.
      *
-     * @param  \Illuminate\Http\File $media
-     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
-     * @param  \Lincable\UrlGenerator $generator
+     * @return string
+     */
+    public function getExtension()
+    {
+        return pathinfo($this->getFileName(), PATHINFO_EXTENSION);
+    }
+
+    /**
+     * Fulfill the url on correct attribute name.
+     *
+     * @param  string  $url
      * @return void
      */
-    protected function wrapUpload(File $media, FilesystemAdapter $storage, UrlGenerator $generator)
+    public function fillUrl(string $url)
     {
-        // Set the model instance to seed the generator and generate
-        // the url injecting the model attributes.
-        $url = $generator->forModel($this)->generate();
-
-        rescue(function () use ($storage, $url, $media) {
-            $urlField = $this->getUrlField();
-
-            // Put the file on storage and get the full url to location.
-            if ($this->exists && array_get($this->attributes, $urlField)) {
-                $url = $storage->putFileAs($url, $media, $this->getFileName());
-            } else {
-                $url = $storage->putFile($url, $media);
-            }
-
-            // Update the model with the url of the uploaded file.
-            $this->fill([$urlField => $url]);
-
-            // Send the event that the upload has been executed with success.
-            event(new UploadSuccess($this, $media));
-
-            $this->save();
-        }, function () use ($media) {
-
-            // Send the event that the upload has failed.
-            event(new UploadFailure($this, $media));
-
-            $this->throwUploadFailureException();
+        // Fill the url with unguarded permissions.  
+        static::unguarded(function () use ($url) {
+            $this->fill([$this->getUrlField() => $url]);
         });
+
+        return $this;
     }
 
     /**
-     * If the fire_url attribute already exists return the name of the file.
+     * Return the media manager instance.
      *
-     * @return string
-     */
-    protected function getFileName()
-    {
-        return last(explode('/', $this->attributes[$this->getUrlField()] ?? ''));
-    }
-
-    /**
-     * Create a temporary file from the model link.
-     *
-     * @param  \Illuminate\Filesystem\FilesystemAdapter $storage
-     * @return \Illuminate\Http\File
-     */
-    protected function createTemporaryFile(FilesystemAdapter $storage)
-    {
-        // Return the path url from storage driver.
-        $url = $this->getUrl();
-
-        if ($storage->has($url)) {
-
-            // Generate a temp file from url.
-            $filename = sprintf('%s%s.%s', '/tmp/', str_random(), pathinfo($url, PATHINFO_EXTENSION));
-            file_put_contents($filename, $storage->get($url));
-
-            // Create the illuminate file from temp filename.
-            return new File($filename);
-        }
-
-        throw new FileNotFoundException($url);
-    }
-
-    /**
-     * Return the manager instance.
-     *
-     * @return \Lincable\MediaManager
+     * @return \Lincable\MediaManager 
      */
     public static function getMediaManager()
     {
+        if (static::$mediaManager === null) {
+            static::$mediaManager = resolve(MediaManager::class);
+        }
+
         return static::$mediaManager;
     }
-
+    
     /**
-     * Return the manager instance.
+     * Set the newly media manager.
      *
-     * @return \Lincable\MediaManager
+     * @param  \Lincable\MediaManager  $manager
+     * @return void 
      */
-    public static function setMediaManager(MediaManager $mediaManager)
+    public static function setMediaManager(MediaManager $manager)
     {
-        static::$mediaManager = $mediaManager;
+        static::$mediaManager = $manager;
     }
 
     /**
-     * Dynamically retrieve attributes on the model.
+     * Forward getter call.
      *
-     * @param  string  $key
+     * @param  mixed  $key
      * @return mixed
      */
     public function __get($key)
     {
-        if ($key == $this->getUrlField()) {
-            $mediaManager = static::getMediaManager();
-
-            // Create the full path from disk storage.
-            return $this->urlFromStorage($mediaManager->getDisk());
+        if ($key === $this->getUrlField()) {
+            return static::getMediaManager()->url($this);
         }
 
         return $this->getAttribute($key);
+    }
+
+    /**
+     * Ensures the model will have an url stored in attributes.
+     * 
+     * @return void
+     * 
+     * @throws \Lincable\Exceptions\LinkNotFoundException
+     */
+    protected function ensureHasUrl() 
+    {
+        if ($this->getRawUrl() === null) {
+            // The preview image could not be found for model.
+            throw new LinkNotFoundException(
+                'Model ['.static::class.'] does not a file linked with.'
+            );
+        }
     }
 }

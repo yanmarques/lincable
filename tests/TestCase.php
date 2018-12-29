@@ -151,7 +151,7 @@ class TestCase extends OrchestraTestCase
         return $file;
     }
 
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return [\Lincable\Providers\MediaManagerServiceProvider::class];
     }

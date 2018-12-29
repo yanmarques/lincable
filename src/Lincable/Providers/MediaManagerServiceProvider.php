@@ -2,10 +2,12 @@
 
 namespace Lincable\Providers;
 
-use Lincable\UrlCompiler;
+use Lincable\UrlConf;
+use Lincable\UrlGenerator;
 use Lincable\MediaManager;
 use Lincable\Http\FileRequest;
 use Illuminate\Support\ServiceProvider;
+use Lincable\Contracts\Compilers\Compiler;
 
 class MediaManagerServiceProvider extends ServiceProvider
 {
@@ -14,7 +16,7 @@ class MediaManagerServiceProvider extends ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+    protected $defer = true;
 
     /**
      * Bootstrap any application services.
@@ -41,10 +43,40 @@ class MediaManagerServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(MediaManager::class, function ($app) {
-            return new MediaManager($app, new UrlCompiler);
-        });
+        $this->registerCompiler();
+        $this->registerUrlGenerator();
+        $this->registerMediaManager();
+    }
 
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [MediaManager::class];
+    }
+
+    /**
+     * Register the media manager singleton.
+     *
+     * @return void
+     */
+    protected function registerMediaManager()
+    {
+        $this->app->singleton(MediaManager::class, function ($app) {
+            return new MediaManager($app, $app->make(UrlGenerator::class));
+        });
+    }
+
+    /**
+     * Register the callback to execute 
+     * 
+     * @return void
+     */
+    protected function registerFileRequestResolvingListener() 
+    {
         $this->app->resolving(FileRequest::class, function ($object, $app) {
             if (! $object->isBooted()) {
 
@@ -57,12 +89,75 @@ class MediaManagerServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the services provided by the provider.
+     * Regiter the compiler default implementation.
      *
-     * @return array
+     * @return void
      */
-    public function provides()
+    protected function registerCompiler()
     {
-        return [MediaManager::class];
+        $this->app->bind(Compiler::class, \Lincable\UrlCompiler::class);
+    }
+
+    /**
+     * Create a new url conf with an optional root name.
+     *
+     * @return \Licable\UrlConf
+     */
+    protected function createUrlConf()
+    {
+        // Create the url conf class.
+        $urlConf = new UrlConf(config('lincable.models.namespace', ''));
+
+        $root = config('lincable.root', '');
+        $urls = config('lincable.urls');
+        
+        // Determine wheter a root is present for each url and trim 
+        // backslashs from right part of string.
+        if ($root !== '') {
+            $root = str_finish(ltrim($root, '/'), '/');
+        }
+
+        // Add the new url configuration.
+        foreach ($urls as $model => $url) {
+            $urlConf->push($model, $root.ltrim($url, '/'));
+        }
+
+        return $urlConf;
+    }
+
+    /**
+     * Register the url generator singleton. 
+     *
+     * @return void
+     */
+    protected function registerUrlGenerator()
+    {
+        $this->app->singleton(UrlGenerator::class, function ($app) {
+            return new UrlGenerator(
+                $app->make(Compiler::class), 
+                $this->createParsers(), 
+                $this->createUrlConf()
+            );
+        });
+    }
+
+    /**
+     * Create the registered parsers and respective formatters.
+     * 
+     * @return mixed
+     */
+    protected function createParsers() 
+    {
+        // Create the default parsers from config.
+        $registeredParsers = collect(array_merge(
+            config('lincable.default_parsers', []),
+            config('lincable.parsers', [])
+        ));
+
+        return $registeredParsers->map(function ($formatters, $parser) {
+            return tap($this->app->make($parser), function ($parser) use ($formatters) {
+                $parser->addFormatters($formatters);
+            });
+        });
     }
 }

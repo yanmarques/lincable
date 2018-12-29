@@ -8,5 +8,7 @@ class Media extends Foo
 {
     protected $table = 'media_test';
 
+    public $preserveName = false;
+
     use Lincable;
 }
