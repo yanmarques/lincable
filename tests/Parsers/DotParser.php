@@ -21,7 +21,7 @@ class DotParser extends Parser
     }
 
     /**
-     * @inheritdoc
+     *{@inheritDoc}
      */
     protected function parseMatches(array $matches): ParameterInterface
     {
@@ -29,7 +29,7 @@ class DotParser extends Parser
     }
 
     /**
-     * @inheritdoc
+     *{@inheritDoc}
      */
     protected function getDynamicPattern(): string
     {

@@ -11,15 +11,26 @@ class GenericFileRequest extends FileRequest
      *
      * @var string
      */
-    public static $extension;
+    protected $extension;
+
+    /**
+     * Set the extension rule to follow.
+     *
+     * @param  string  $extension
+     * @return void
+     */
+    public function setExtension(string $extension)
+    {
+        $this->extension = $extension;
+    }
 
     /**
      * Rules to validate the file on request.
      *
      * @return mixed
      */
-    protected function rules()
+    public function rules()
     {
-        return 'mimes:'.static::$extension;
+        return ['required', $this->extension ? 'mimes:'.$this->extension : null];
     }
 }

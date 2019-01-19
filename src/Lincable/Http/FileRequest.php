@@ -4,84 +4,20 @@ namespace Lincable\Http;
 
 use Illuminate\Http\Request;
 use Lincable\Concerns\BuildClassnames;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Factory;
 use Symfony\Component\HttpFoundation\File\File;
 
-abstract class FileRequest
+abstract class FileRequest extends FormRequest
 {
     use BuildClassnames;
-
-    /**
-     * The uploaded file instance.
-     *
-     * @var \Illuminate\Http\File
-     */
-    protected $file;
-
-    /**
-     * The request instance.
-     *
-     * @var \Illuminate\Http\Request
-     */
-    protected $request;
-
-    /**
-     * The file parameter on request.
-     *
-     * @var string
-     */
-    protected $parameter;
-
-    /**
-     * Determine wheter has been booted with a request.
-     *
-     * @var bool
-     */
-    protected $booted = false;
 
     /**
      * Rules to validate the file on request.
      *
      * @return mixed
      */
-    abstract protected function rules();
-
-    /**
-     * Boot the instance with the request.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return void
-     */
-    public function boot(Request $request)
-    {
-        $this->request = $request;
-
-        if (! $this->getParameter()) {
-
-            // Set the file parameter.
-            $this->setParameter($this->retrieveParameter());
-        }
-
-        // Guard the file through validations.
-        $this->validate();
-
-        $this->file = $request->file($this->getParameter());
-
-        $this->booted = true;
-    }
-
-    /**
-     * Return wheter the file request is booted.
-     *
-     * If is booted that means the file has been validated and
-     * a request instance is available on instance.
-     *
-     * @return bool
-     */
-    public function isBooted()
-    {
-        return $this->booted;
-    }
+    abstract public function rules();
 
     /**
      * Return the file on request.
@@ -90,17 +26,7 @@ abstract class FileRequest
      */
     public function getFile()
     {
-        return $this->file;
-    }
-
-    /**
-     * Return the current request instance.
-     *
-     * @return \Illuminate\Http\Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
+        return $this->file($this->getParameter());
     }
 
     /**
@@ -110,6 +36,10 @@ abstract class FileRequest
      */
     public function getParameter()
     {
+        if (! $this->parameter) {
+            $this->parameter = $this->retrieveParameter();
+        }
+
         return $this->parameter;
     }
 
@@ -143,24 +73,22 @@ abstract class FileRequest
      * @param  \Illuminate\Contracts\Container\Container $app
      * @return \Symfony\Component\HttpFoundation\File\File
      */
-    public function prepareFile(Container $app)
+    public function prepareFile()
     {
-        $file = $this->moveFileToTempDirectory();
+        $file = $this->moveFileToTempDirectory($this->getFile());
 
-        return $this->executeFileEvents($app, $file);
+        return $this->executeFileEvents($file);
     }
 
     /**
-     * Validate the file with the defined rules.
-     *
-     * @return void
+     *{@inheritDoc}
      */
-    public function validate()
+    public function validator(Factory $factory)
     {
-        $validationRules = $this->parseValidationRules();
-
-        // Validate the request file from rules.
-        $this->request->validate($validationRules);
+        return $factory->make(
+            $this->validationData(), $this->parseValidationRules(),
+            $this->messages(), $this->attributes()
+        );
     }
 
     /**
@@ -171,8 +99,8 @@ abstract class FileRequest
     protected function retrieveParameter()
     {
         $className = static::class;
-
-        return $this->nameFromClass($className, 'FileRequest');
+        
+        return $this->nameFromClass($className, class_basename(self::class));
     }
 
     /**
@@ -182,7 +110,7 @@ abstract class FileRequest
      */
     protected function parseValidationRules()
     {
-        return [$this->getParameter() => $this->rules()];
+        return [$this->getParameter() => $this->container->call([$this, 'rules'])];
     }
 
     /**
@@ -192,9 +120,9 @@ abstract class FileRequest
      */
     protected function moveFileToTempDirectory()
     {
-        $destination = $this->file->hashName();
+        $file = $this->getFile();
 
-        return $this->file->move(config('lincable.temp_directory'), $destination);
+        return $file->move(config('lincable.temp_directory'), $file->hashName());
     }
 
     /**
@@ -202,18 +130,17 @@ abstract class FileRequest
      *
      * Here the file can be changed, optimized, etc...
      *
-     * @param  \Illuminate\Contracts\Container\Container $app
-     * @param  \Symfony\Component\HttpFoundation\File\File $file
+     * @param  \Symfony\Component\HttpFoundation\File\File  $file
      * @return mixed
      */
-    protected function executeFileEvents(Container $app, File $file)
+    protected function executeFileEvents(File $file)
     {
         $callable = [$this, 'beforeSend'];
 
         if (method_exists($callable[0], $callable[1])) {
 
             // Handle the result from event call.
-            if ($result = $app->call($callable, [$file])) {
+            if ($result = $this->container->call($callable, [$file])) {
                 return $result;
             }
         }

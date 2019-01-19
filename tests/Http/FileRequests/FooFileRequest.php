@@ -4,34 +4,22 @@ namespace Tests\Lincable\Http\FileRequests;
 
 use Lincable\Http\FileRequest;
 
-class FooFileRequest extends FileRequest
+class FooFileRequest extends GenericFileRequest
 {
-    /**
-     * File to move the file before send.
-     * 
-     * @var string
-     */
-    private $destination;
+    protected $path;
+    protected $name;
 
     /**
-     * 
-     * 
-     * @param  string $file
+     * Set the file destination to move before send it.
+     *
+     * @param  string  $path
+     * @param  string|null  $name
      * @return void
      */
-    public function __construct(string $destination)
+    public function setDestination(string $path, string $name = null)
     {
-        $this->destination = $destination;
-    }
-
-    /**
-     * Rules to validate the file on request.
-     *
-     * @return mixed
-     */
-    protected function rules()
-    {
-        return 'mimes:txt';
+        $this->path = $path;
+        $this->name = $name;
     }
 
     /**
@@ -41,7 +29,9 @@ class FooFileRequest extends FileRequest
      */
     public function beforeSend($file)
     {
-        return $file->move($this->destination);
+        if ($this->path) {
+            return $file->move($this->path, $this->name);
+        }
     }
 }
 

@@ -3,22 +3,25 @@
 namespace Tests\Lincable;
 
 use Event;
+use Illuminate\Http\File;
 use Lincable\MediaManager;
 use Tests\Lincable\Models\Foo;
 use Tests\Lincable\Models\Media;
 use Lincable\Eloquent\Events\UploadSuccess;
-use Illuminate\Http\File;
-use Lincable\Exceptions\ConflictFileUploadHttpException;
 use Lincable\Eloquent\Events\UploadFailure;
 use League\Flysystem\FileNotFoundException;
+use Lincable\Exceptions\ConflictFileUploadHttpException;
 
 class MediaManagerTest extends TestCase
 {
+    /**
+     * {@inheritDoc}
+     */
     public function setUp()
     {
         parent::setUp();
 
-        $this->app['config']->set('lincable.models.namespace', 'Tests\Lincable'); 
+        $this->app['config']->set('lincable.models.namespace', 'Tests\Lincable\Models'); 
     }
 
     /**
@@ -56,8 +59,8 @@ class MediaManagerTest extends TestCase
      */
     public function testUrlWillReturnTheFullUrlForModel()
     {
-        $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+        $this->setUrls([
+            'media' => 'foo/:id'
         ]);
 
         $manager = app(MediaManager::class);
@@ -80,8 +83,8 @@ class MediaManagerTest extends TestCase
      */
     public function testThatHasWillFindTheModelFile()
     {
-        $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+        $this->setUrls([
+            'media' => 'foo/:id'
         ]);
 
         $manager = app(MediaManager::class);
@@ -96,7 +99,7 @@ class MediaManagerTest extends TestCase
     }
 
     /**
-     * Should not find the model media when model has no link.
+     * Should not find the model Media when model has no link.
      * 
      * @return void
      */
@@ -119,43 +122,43 @@ class MediaManagerTest extends TestCase
     {
         Event::fake();
 
-        $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+        $this->setUrls([
+            'media' => 'foo/:id'
         ]);
-
+        
         $model = new Media([
             'id' => 123
         ]);
-
+        
         app(MediaManager::class)->upload($this->createFile(''), $model);
-
+            
         Event::assertDispatched(UploadSuccess::class);
         $this->assertTrue($model->isDirty($model->getUrlField()));
     }
 
     /**
-     * Should upload a new media with the same url when model
-     * already has a media linked.
+     * Should upload a new Media with the same url when model
+     * already has a Media linked.
      * 
      * @return void
      */
     public function testWillUploadNewMediaToLinkedModel()
     {   
-        $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+        $this->setUrls([
+            'media' => 'foo/:id'
         ]);
 
         $model = new Media([
-            'id' => 123
+            'id' => 666
         ]);
 
         // Link the model once.
         $model->link($this->createFile(''));
 
         $expected = str_random();
-        
+    
         app(MediaManager::class)->upload($this->createFile($expected), $model);
-
+    
         $this->assertTrue($model->isClean($model->getUrlField()));
 
         $model->withMedia(function ($file) use ($expected) {
@@ -173,8 +176,8 @@ class MediaManagerTest extends TestCase
     {
         Event::fake();
 
-        $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+        $this->setUrls([
+            'media' => 'foo/:id'
         ]);
 
         $model = new Media([
@@ -202,7 +205,7 @@ class MediaManagerTest extends TestCase
     public function testWillCopyTheMediaFromModel()
     {
         $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+           'media' => 'foo/:id'
         ]);
 
         $model = new Media([
@@ -233,7 +236,7 @@ class MediaManagerTest extends TestCase
     public function testWillCopyTheMediaFromModelPreservingName()
     {
         $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+           'media' => 'foo/:id'
         ]);
 
         $model = new Media([
@@ -253,14 +256,14 @@ class MediaManagerTest extends TestCase
     }
 
     /**
-     * 
+     * Should return the same file stored previously.
      * 
      * @return void
      */
     public function testWillReturnTheMediaInStorage()
     {
         $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+           'media' => 'foo/:id'
         ]);
 
         $model = new Media([
@@ -324,7 +327,7 @@ class MediaManagerTest extends TestCase
     public function testCreateLinkWithValidModel()
     {
         $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+           'media' => 'foo/:id'
         ]);
 
         $model = new Media([
@@ -345,7 +348,7 @@ class MediaManagerTest extends TestCase
     public function testCreateLinkWithAFileName()
     {
         $this->app['config']->set('lincable.urls', [
-            'models.media' => 'foo/:id'
+            'media' => 'foo/:id'
         ]);
 
         $model = new Media([

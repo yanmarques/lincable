@@ -96,20 +96,4 @@ class FileResolverTest extends TestCase
         $this->expectException(NotResolvableFileException::class);
         FileResolver::resolve($invalidObject);
     }
-
-    /**
-     * Should boot a file request not booted.
-     *
-     * @return void
-     */
-    public function testThatResolveWithNotBootedFileRequest()
-    {
-        $request = $this->createRequest('generic', $this->getRandom('txt'));
-        Container::getInstance()->instance(Request::class, $request);
-        $fileRequest = $this->createFileRequest('txt', false);
-        $result = FileResolver::resolve($fileRequest);
-        $this->assertInstanceOf(File::class, $result);
-        $this->assertTrue($fileRequest->isBooted());
-        unlink($result->path());
-    }
 }

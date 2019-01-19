@@ -6,6 +6,7 @@ use Storage;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Lincable\Http\FileRequest;
+use Tests\Lincable\Models\Media;
 use Illuminate\Config\Repository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Factory;
@@ -14,6 +15,8 @@ use Illuminate\Filesystem\FilesystemManager;
 use PHPUnit\Framework\TestCase as UnitTestCase;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Tests\Lincable\Http\FileRequests\GenericFileRequest;
+use Lincable\Providers\MediaManagerServiceProvider;
+use Lincable\MediaManager;
 
 class TestCase extends OrchestraTestCase
 {
@@ -79,21 +82,34 @@ class TestCase extends OrchestraTestCase
      * Create a image file request with the extension rule.
      *
      * @param  string $extension
-     * @param  bool $boot
      * @return \Tests\Lincable\FileFileRequest
      */
-    public function createFileRequest(string $extension, bool $boot = null)
+    public function createFileRequest(string $extension)
     {
-        GenericFileRequest::$extension = $extension;
-        $file = new GenericFileRequest;
+        $this->createRequest(
+            'generic', 
+            $this->getRandom($extension)
+        );
 
-        if ($boot || is_null($boot)) {
-            $pathName = $this->getRandom($extension);
-            $request = $this->createRequest('generic', $pathName);
-            $file->boot($request);
-        }
+        return tap($this->app->make(GenericFileRequest::class), function ($request) use ($extension) {
+            $request->setExtension($extension);
+        });
+    }
 
-        return $file;
+    /**
+     * Re-set the new url configuration.
+     *
+     * @param  array  $urls
+     * @return void
+     */
+    public function setUrls(array $urls)
+    {
+        $this->app['config']->set('lincable.urls', $urls);
+        $provider = new MediaManagerServiceProvider($this->app);
+        $provider-> registerUrlGenerator();
+        $provider->registerMediaManager();
+
+        Media::setMediaManager($this->app->make(MediaManager::class));
     }
 
     /**
@@ -151,6 +167,9 @@ class TestCase extends OrchestraTestCase
         return $file;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function getPackageProviders($app)
     {
         return [\Lincable\Providers\MediaManagerServiceProvider::class];

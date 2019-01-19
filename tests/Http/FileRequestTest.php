@@ -7,41 +7,21 @@ use Tests\Lincable\TestCase;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\ValidationException;
 use Tests\Lincable\Http\FileRequests\FooFileRequest;
+use Lincable\Http\File\FileResolver;
+use Tests\Lincable\Http\FileRequests\FooFormRequest;
 
 class FileRequestTest extends TestCase
-{
-    /**
-     * Should boot the file request with the request with an file.
-     *
-     * @return void
-     */
-    public function testThatBootSetTheRequest()
-    {
-        $fileRequest = $this->createFileRequest('png');
-        
-        // Assert the request on foo file.
-        $this->assertInstanceOf(
-            Request::class,
-            $fileRequest->getRequest()
-        );
-    }
-
+{   
     /**
      * Should return the file sent on request.
      *
      * @return void
      */
-    public function testThatBootSetThePngFile()
+    public function testGetParameterResolvesClassname()
     {
-        $png = $this->getRandom('png');
-        $request = $this->createRequest('generic', $png);
-        $file = $this->createFileRequest('png', false);
-        $file->boot($request);
-        
-        // Assert the request on foo file.
         $this->assertEquals(
-            $png,
-            $file->getFile()->name
+            'generic',
+            $this->createFileRequest('txt')->getParameter()
         );
     }
 
@@ -50,35 +30,12 @@ class FileRequestTest extends TestCase
      * 
      * @return void
      */
-    public function testThatIsBootedReturnTrueAfterBoot()
+    public function testGetParameterChangesTheParameterWhenSet()
     {
-        $fileRequest = $this->createFileRequest('txt');
-        $this->assertTrue($fileRequest->isBooted());
-    }
-
-    /**
-     * Should return false method on isBooted.
-     * 
-     * @return void
-     */
-    public function testThatIsBootedReturnFalseAfterBoot()
-    {
-        $fileRequest = $this->createFileRequest('txt', false);
-        $this->assertFalse($fileRequest->isBooted());
-    }
-
-    /**
-     * Should throw a validation exception for invalid file mimetype.
-     * 
-     * @return void
-     */
-    public function testThatBootThrowsAValidationException()
-    {
-        $invalidFile = $this->getRandom('xyz');
-        $request = $this->createRequest('generic', $invalidFile);
-        $fileRequest = $this->createFileRequest('png', false);
-        $this->expectException(ValidationException::class);
-        $fileRequest->boot($request);
+        $this->assertEquals(
+            'bar', 
+            $this->createFileRequest('txt')->as('bar')->getParameter()
+        );
     }
 
     /**
@@ -89,55 +46,29 @@ class FileRequestTest extends TestCase
      */
     public function testThatBeforeSendChangesTheFile()
     {
-        $text = $this->getRandom('txt');
-        $request = $this->createRequest('foo', $text);
-        $destination = str_finish('/tmp/'.str_random(), '/');
-        $foo = new FooFileRequest($destination);
-        $foo->boot($request);
-        $file = app()->call([$foo, 'prepareFile']);
-        $expected = $destination.$file->getFilename();
-        $this->assertEquals($expected, $file->getPathName());
-        (new Filesystem)->deleteDirectory($destination);
+        $name = $this->getRandom('txt');
+        
+        $request = $this->createFooFileRequest('txt', '/tmp', $name);
+        
+        $file = $request->prepareFile();
+
+        $this->assertEquals('/tmp/'.$name, $file->getPathName());
     }
 
     /**
-     * Should set the parameter on file request.
-     * 
+     * Set a new file on currest request.
+     *
+     * @param  string  $key
+     * @param  string  $path
+     * @param  string|null  $name
      * @return void
      */
-    public function testSetParameterChangesTheParameterName()
+    protected function createFooFileRequest(string $extension, string $path, string $name = null)
     {
-        $foo = new FooFileRequest('foo');
-        $expected = 'bar';
-        $foo->setParameter($expected);
-        $this->assertEquals($expected, $foo->getParameter());
-    }
+        $this->createRequest('foo', $this->getRandom($extension));
 
-    /**
-     * Should set the parameter when booting.
-     * 
-     * @return void
-     */
-    public function testBootSetParameterFromClassname()
-    {
-        $expected = 'baz';
-        $request = $this->createRequest($expected, $this->getRandom('txt'));
-        $fileRequest = $this->createFileRequest('txt', false);
-        $fileRequest->setParameter($expected);
-        $fileRequest->boot($request);
-        $this->assertEquals($expected, $fileRequest->getParameter());
-    }
-
-    /**
-     * Should set the parameter name.
-     * 
-     * @return void
-     */
-    public function testAsSetsTheParameterName()
-    {
-        $foo = new FooFileRequest('foo');
-        $expected = 'bar';
-        $foo->as($expected);
-        $this->assertEquals($expected, $foo->getParameter());
+        return tap($this->app->make(FooFileRequest::class), function ($request) use ($path, $name) {
+            $request->setDestination($path, $name);
+        });
     }
 }

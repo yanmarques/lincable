@@ -70,6 +70,18 @@ class MediaManager
     }
 
     /**
+     * Set the new url generator instance.
+     *
+     * @param  \Lincable\UrlGenerator  $urlGenerator
+     * @return this
+     */
+    public function setUrlGenerator(UrlGenerator $urlGenerator)
+    {
+        $this->urlGenerator = $urlGenerator;
+        return $this;
+    }
+
+    /**
      * Return the container instance.
      * 
      * @return \Illuminate\Contracts\Container\Container
@@ -180,6 +192,32 @@ class MediaManager
         $this->disk->copy($from->getRawUrl(), $path);
 
         return $to->fillUrl($path);
+    }
+
+    /**
+     * Move a model media to another location.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  \Illuminate\Database\Eloquent\Model|string  $path
+     * @param  bool|null  $dryRun
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function move(Model $model, $path, bool $dryRun = null) 
+    {
+        if ($path instanceof Model) {
+            $this->supportLincable($path);
+            $modelUrl = $path->getRawUrl();
+
+            // Do not keep the model on.
+            if (! $dryRun) {
+                $path->delete();
+            }
+
+            $path = $modelUrl;
+            unset($modelUrl);
+        }
+
+        $this->disk->move($model->getRawUrl(), (string) $path);
     }
 
     /**

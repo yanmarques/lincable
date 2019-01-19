@@ -28,7 +28,7 @@ class FileResolver
                 $file = new SymfonyFile($file);
                 break;
             case $file instanceof FileRequest:
-                $file = static::resolveFileRequest($file);
+                $file = $file->prepareFile();
                 break;
             case $file instanceof UploadedFile:
                 $filename = $file->hashName();
@@ -54,25 +54,5 @@ class FileResolver
     public static function toIlluminateFile(SymfonyFile $file)
     {
         return new IlluminateFile($file->getPathName());
-    }
-
-    /**
-     * Handle a file request and resolve to a file.
-     *
-     * @param  \Lincable\Http\FileRequest $file
-     * @return \Symfony\Component\HttpFoundation\File\File
-     */
-    public static function resolveFileRequest(FileRequest $file)
-    {
-        // Get the global container instance.
-        $app = Container::getInstance();
-
-        if (! $file->isBooted()) {
-
-            // Boot the file request with the current request.
-            $file->boot($app->make(Request::class));
-        }
-
-        return $file->prepareFile($app);
     }
 }

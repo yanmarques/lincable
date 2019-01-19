@@ -40,7 +40,7 @@ trait CloneLinks
     }
 
     /**
-     * @inheritDoc
+     *{@inheritDoc}
      */
     public function replicate(array $except = null)
     {

@@ -63,28 +63,10 @@ class MediaManagerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerMediaManager()
+    public function registerMediaManager()
     {
         $this->app->singleton(MediaManager::class, function ($app) {
             return new MediaManager($app, $app->make(UrlGenerator::class));
-        });
-    }
-
-    /**
-     * Register the callback to execute 
-     * 
-     * @return void
-     */
-    protected function registerFileRequestResolvingListener() 
-    {
-        $this->app->resolving(FileRequest::class, function ($object, $app) {
-            if (! $object->isBooted()) {
-
-                // Boot the file request with the current request.
-                $object->boot($app['request']);
-            }
-
-            return $object;
         });
     }
 
@@ -130,7 +112,7 @@ class MediaManagerServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerUrlGenerator()
+    public function registerUrlGenerator()
     {
         $this->app->singleton(UrlGenerator::class, function ($app) {
             return new UrlGenerator(
