@@ -10,17 +10,13 @@ use Lincable\Eloquent\Lincable;
 use Tests\Lincable\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Lincable\Eloquent\Events\UploadSuccess;
+use Tests\Lincable\Models\MediaWithMutator;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Lincable\Exceptions\ConflictFileUploadHttpException;
 
 class LincableTest extends TestCase
 {
     use DatabaseMigrations;
-
-    public function setUp()
-    {
-        parent::setUp();
-    }
 
     /**
      * Should link the file with model and create store the file.
@@ -31,16 +27,16 @@ class LincableTest extends TestCase
     {
         Event::fake();
 
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:year/:month/:id'
         ]);
-    
+
         // Create the random file with random text.
         $file = UploadedFile::fake()->create(
             $this->getRandom('txt'),
             10
         );
-        
+
         $media = new Media(['id' => 123]);
         $media->link($file);
         
@@ -55,7 +51,7 @@ class LincableTest extends TestCase
      */
     public function testLinkWithInvalidFile()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:year/:month/:id'
         ]);
     
@@ -76,7 +72,7 @@ class LincableTest extends TestCase
      */
     public function testWithMediaGetTheLinkedFile()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:year/:month/:id'
         ]);
 
@@ -100,7 +96,7 @@ class LincableTest extends TestCase
      */
     public function testGetUrlReturnsRegisteredUrlOnUrlConf()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:id'
         ]);
 
@@ -119,9 +115,9 @@ class LincableTest extends TestCase
      *
      * @return void
      */
-    public function testUseModelUrlWhenAlreadySet()
+    public function testUseModelUrlWhenSet()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:year/:month/:id'
         ]);
     
@@ -131,15 +127,15 @@ class LincableTest extends TestCase
         $media = new Media(['id' => 123]);
         $media->link($file);
 
-        // Get the old url.
-        $oldUrl = $media->preview;
+        // Get the old filename.
+        $oldFilename = $media->getFileName();
         
         // Create a new file to link with.
         $newlyFile = $this->createFile(str_random());
 
         $media->link($newlyFile);
         
-        $this->assertEquals($oldUrl, $media->preview);
+        $this->assertEquals($oldFilename, $media->getFileName());
     }
 
     /**
@@ -149,7 +145,7 @@ class LincableTest extends TestCase
      */
     public function testReplicateModelAndCloneMedia()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:year/:month/:id'
         ]);
     
@@ -175,7 +171,7 @@ class LincableTest extends TestCase
      */
     public function testReplicateWithPreserveNameEnabled()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             Media::class => 'foo/:id'
         ]);
     
@@ -189,5 +185,140 @@ class LincableTest extends TestCase
         $clone->save();
         
         $this->assertEquals($media->getFileName(), $clone->getFileName());
+    }
+
+    /**
+     * Should link the created model without firing model save events.
+     * 
+     * @return void
+     */
+    public function testReplicateModelAndSavedEventIsNotDispatched()
+    {
+        Event::fake();
+
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $media = new Media(['id' => 123]);
+        $media->link($this->createFile(""));
+
+        $clone = $media->replicate();
+        $clone->save();
+
+        Event::assertNotDispatched('eloquent.saved : *');
+    }
+
+    /**
+     * Should delete the media when model is deleted.
+     *
+     * @return void
+     */
+    public function testDeleteModelRemovesMediaOnStorageByDefault()
+    {
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $media = new Media(['id' => 123]);
+        $media->link($this->createFile(""));
+        $media->delete();
+
+        $this->assertFalse($media::getMediaManager()->has($media));
+    }
+
+    /**
+     * Should keep the media when model is deleted.
+     *
+     * @return void
+     */
+    public function testKeepTheMediaWhenDeletedWhenLocallyConfigured()
+    {
+        $this->app['config']->set('lincable.keep_media_on_delete', false);
+
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $media = new Media(['id' => 123]);
+        $media->keepMediaOnDelete = true;
+        $media->link($this->createFile(""));
+        $media->delete();
+
+        $this->assertTrue($media::getMediaManager()->has($media));
+    }
+
+    /**
+     * Should delete the media when model is deleted.
+     *
+     * @return void
+     */
+    public function testUseGlobalConfigurationWhenLocallyIsNotPresent()
+    {
+        $this->app['config']->set('lincable.keep_media_on_delete', true);
+
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $media = new Media(['id' => 123]);
+        $media->link($this->createFile(""));
+        $media->delete();
+
+        $this->assertTrue($media::getMediaManager()->has($media));
+    }
+
+    /**
+     * Should overwrite method to get the full url from model.
+     *
+     * @return void
+     */
+    public function testUseCustomModelPrefixWhenHasGetAcessor()
+    {
+        $this->setUrls([
+            MediaWithMutator::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $media = new MediaWithMutator(['id' => 123]);
+        $media->prefix = 'test/';
+        $media->link($this->createFile(""));
+        
+        $this->assertTrue(starts_with($media->preview, 'test/'));
+    }
+
+    /**
+     * Should use local configured model url field.
+     *
+     * @return void
+     */
+    public function testUseUrlFieldConfiguredOnModel()
+    {
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+
+        $expected = 'foo';
+    
+        $media = new Media(['id' => 123]);
+        $media->urlField = $expected;
+
+        $this->assertEquals($expected, $media->getUrlField());    
+    }
+
+    /**
+     * Should transform the model to a readable html string.
+     *
+     * @return void
+     */
+    public function testHtmalbleContractImplementation()
+    {
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+    
+        $media = new Media(['id' => 123]);
+        $media->link($this->createFile(""));
+
+        $this->assertStringContainsString($media->getUrl(), e($media));
     }
 }

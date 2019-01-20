@@ -3,6 +3,7 @@
 namespace Lincable\Http;
 
 use Illuminate\Http\Request;
+use Lincable\Http\File\FileResolver;
 use Lincable\Concerns\BuildClassnames;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Factory;
@@ -11,6 +12,13 @@ use Symfony\Component\HttpFoundation\File\File;
 abstract class FileRequest extends FormRequest
 {
     use BuildClassnames;
+
+    /**
+     * The file parameter name.
+     *
+     * @var string|null
+     */
+    protected $parameter;
 
     /**
      * Rules to validate the file on request.
@@ -36,7 +44,7 @@ abstract class FileRequest extends FormRequest
      */
     public function getParameter()
     {
-        if (! $this->parameter) {
+        if ($this->parameter === null) {
             $this->parameter = $this->retrieveParameter();
         }
 
@@ -68,14 +76,13 @@ abstract class FileRequest extends FormRequest
     }
 
     /**
-     * Prepared the file to send.
+     * Prepare the file for sending.
      *
-     * @param  \Illuminate\Contracts\Container\Container $app
-     * @return \Symfony\Component\HttpFoundation\File\File
+     * @return mixed
      */
     public function prepareFile()
     {
-        $file = $this->moveFileToTempDirectory($this->getFile());
+        $file = $this->moveFileToTempDirectory();
 
         return $this->executeFileEvents($file);
     }
@@ -120,9 +127,7 @@ abstract class FileRequest extends FormRequest
      */
     protected function moveFileToTempDirectory()
     {
-        $file = $this->getFile();
-
-        return $file->move(config('lincable.temp_directory'), $file->hashName());
+        return FileResolver::resolve($this->getFile());
     }
 
     /**

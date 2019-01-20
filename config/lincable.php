@@ -35,9 +35,21 @@ return [
     | Here you register the directory where files should be moved to when the
     | resolving a uploaded file to a local file.
     |
+    | DEFAULT: "sys_temp_dir" PHP directive will be considered.
     */
 
-    'temp_directory' => '/tmp',
+    'temp_directory' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Event
+    |--------------------------------------------------------------------------
+    |
+    | Configure wheter the media should be kept on the delete event from model.
+    |
+    */
+
+    'keep_media_on_delete' => false,
 
     /*
     |--------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 namespace Lincable;
 
+use League\Flysystem\Util;
 use Lincable\Parsers\Parser;
 use Lincable\Contracts\Compilers\Compiler;
 
@@ -102,7 +103,7 @@ class UrlCompiler implements Compiler
      */
     public function buildUrlFragments(array $fragments): string
     {
-        return implode('/', $fragments);
+        return Util::normalizeRelativePath(implode('/', $fragments));
     }
 
     /**

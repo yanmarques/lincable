@@ -4,6 +4,7 @@ namespace Lincable\Eloquent;
 
 use File;
 use Lincable\MediaManager;
+use Lincable\Http\File\FileFactory;
 use Illuminate\Container\Container;
 use Lincable\Http\File\FileResolver;
 use Illuminate\Http\File as IlluminateFile;
@@ -21,6 +22,20 @@ trait Lincable
     protected static $mediaManager;
 
     /**
+     * Boots the trait.
+     *
+     * @return void
+     */
+    protected static function bootLincable()
+    {
+        static::deleted(function ($model) {
+            if (! $model->shouldKeepMediaWhenDeleted()) {
+                static::getMediaManager()->delete($model);
+            }
+        });
+    }
+
+    /**
      * Return the raw url saved on database.
      *
      * @return string
@@ -30,6 +45,16 @@ trait Lincable
     public function getRawUrl()
     {
         return $this->getAttributeFromArray($this->getUrlField());
+    }
+
+    /**
+     * Return the full url media from model.
+     *
+     * @return void
+     */
+    public function getUrl()
+    {
+        return static::getMediaManager()->url($this);
     }
 
     /**
@@ -94,7 +119,9 @@ trait Lincable
      */
     public function getUrlField()
     {
-        return config('lincable.models.url_field');
+        return isset($this->urlField) && $this->urlField !== null 
+            ? $this->urlField
+            : config('lincable.models.url_field');
     }
 
     /**
@@ -105,7 +132,7 @@ trait Lincable
     public function getFileName()
     {
         $this->ensureHasUrl();
-        return pathinfo($this->getRawUrl(), PATHINFO_BASENAME);
+        return FileFactory::fileName($this->getRawUrl());
     }
 
     /**
@@ -115,7 +142,7 @@ trait Lincable
      */
     public function getExtension()
     {
-        return pathinfo($this->getFileName(), PATHINFO_EXTENSION);
+        return FileFactory::extension($this->getFileName());
     }
 
     /**
@@ -160,6 +187,20 @@ trait Lincable
     }
 
     /**
+     * Determine wheter shoul keep the media for the model.
+     * 
+     * @return bool
+     */
+    public function shouldKeepMediaWhenDeleted()
+    {        
+        return (bool) (
+            isset($this->keepMediaOnDelete) && $this->keepMediaOnDelete !== null 
+                ? $this->keepMediaOnDelete 
+                : config('lincable.keep_media_on_delete', false)
+            );
+    }
+
+    /**
      * Forward getter call.
      *
      * @param  mixed  $key
@@ -168,10 +209,48 @@ trait Lincable
     public function __get($key)
     {
         if ($key === $this->getUrlField()) {
-            return static::getMediaManager()->url($this);
+            // Let the model to use own resolution logic to create the link.
+            if ($this->hasGetMutator($key)) {
+                return $this->mutateAttribute($key, $this->getRawUrl());
+            }
+
+            return $this->getUrl();            
         }
 
         return $this->getAttribute($key);
+    }
+
+    /**
+     * Get content as a string of HTML.
+     *
+     * @return string
+     */
+    public function toHtml()
+    {
+        $url = $this->{$this->getUrlField()};
+
+        $options = collect($this->getHtmlOptions())
+            ->map(function ($value, $key) {
+                if (is_int($key)) {
+                    $key = $value;
+                    $value = '';
+                }
+
+                return $key.'="'.$value.'"';
+            })
+            ->implode(' ');
+
+        return '<img src="'.$url.'" '.$options.'>';
+    }
+
+    /**
+     * Return the key -> value array for htmlable element.
+     * 
+     * @return array
+     */
+    protected function getHtmlOptions() 
+    {
+        return [];
     }
 
     /**

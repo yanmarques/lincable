@@ -77,6 +77,22 @@ class MediaManagerTest extends TestCase
     }
 
     /**
+     * Should return null when model is not linked.
+     * 
+     * @return void
+     */
+    public function testUrlWillReturnNullWhenModelDoesentHaveMediaLinked()
+    {
+        $model = new Media([
+            'id' => 123
+        ]);
+
+        $result = app(MediaManager::class)->url($model);
+        
+        $this->assertNull($result);
+    }
+
+    /**
      * Should has the file of linked model on storage.
      *
      * @return void
@@ -204,7 +220,7 @@ class MediaManagerTest extends TestCase
      */
     public function testWillCopyTheMediaFromModel()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
            'media' => 'foo/:id'
         ]);
 
@@ -235,7 +251,7 @@ class MediaManagerTest extends TestCase
      */
     public function testWillCopyTheMediaFromModelPreservingName()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
            'media' => 'foo/:id'
         ]);
 
@@ -262,7 +278,7 @@ class MediaManagerTest extends TestCase
      */
     public function testWillReturnTheMediaInStorage()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
            'media' => 'foo/:id'
         ]);
 
@@ -326,7 +342,7 @@ class MediaManagerTest extends TestCase
      */
     public function testCreateLinkWithValidModel()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
            'media' => 'foo/:id'
         ]);
 
@@ -347,7 +363,7 @@ class MediaManagerTest extends TestCase
      */
     public function testCreateLinkWithAFileName()
     {
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             'media' => 'foo/:id'
         ]);
 

@@ -5,15 +5,19 @@ namespace Lincable;
 use Exception;
 use Illuminate\Http\File;
 use Lincable\Eloquent\Lincable;
+use Lincable\Http\File\FileFactory;
 use Illuminate\Database\Eloquent\Model;
 use League\Flysystem\FileNotFoundException;
 use Lincable\Eloquent\Events\UploadFailure;
 use Lincable\Eloquent\Events\UploadSuccess;
+use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Contracts\Container\Container;
 use Lincable\Exceptions\ConflictFileUploadHttpException;
 
 class MediaManager
 {
+    use ForwardsCalls;
+
     /**
      * The container implementation.
      *
@@ -95,12 +99,15 @@ class MediaManager
      * Return the full url from disk for the model.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return string
+     * @return string|null
      */
     public function url(Model $model)
     {
         $this->supportLincable($model);
-        return $this->disk->url(ltrim($model->getRawUrl(), '/'));   
+
+        if ($model->getRawUrl()) {
+            return $this->disk->url($model->getRawUrl());
+        }   
     }
 
     /**
@@ -145,7 +152,7 @@ class MediaManager
             // Determine wheter the model already has a file linked to reuse 
             // the same url. Then the media filename is inserted into the arguments 
             // and we change the upload method to accept a filename. 
-            if ($model->exists && $model->getRawUrl()) {
+            if ($model->getRawUrl()) {
                 $arguments[] = $model->getFileName();
                 $putMethod = 'putFileAs';
             } 
@@ -233,18 +240,9 @@ class MediaManager
         $url = $model->getRawurl();
 
         if ($url && $this->disk->has($url)) {
-            // Generate a temp file from url.
-            $filename = sprintf(
-                '%s%s.%s', 
-                str_finish($this->config('temp_directory'), '/'), 
-                str_random(), 
-                pathinfo($url, PATHINFO_EXTENSION)
-            );
+            $resource = $this->disk->readStream($url);
 
-            file_put_contents($filename, $this->disk->get($url));
-
-            // Create the illuminate file from temp filename.
-            return new File($filename);
+            return FileFactory::createTemporary($resource, $url);
         }
 
         throw new FileNotFoundException($url);
@@ -253,7 +251,7 @@ class MediaManager
     /**
      * Create a new a link for model with a file name. 
      * 
-     * @param  
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @param  string|null  $fileName
      * @return string
      */
@@ -263,9 +261,10 @@ class MediaManager
 
         // Set the model instance to seed the generator and generate
         // the url injecting the model attributes.
-        $url = $this->urlGenerator
-            ->forModel($model)
-            ->generate();
+        $url = str_start(
+            $this->urlGenerator->forModel($model)->generate(), 
+            '/'
+        );
 
         if ($fileName) {
             return str_finish($url, '/').$fileName;
@@ -294,9 +293,20 @@ class MediaManager
 
         $modelClass = get_class($model);
         
-        if (! in_array(Lincable::class, class_uses_recursive($modelClass))) {
+        if (! $this->hasLincableTrait($modelClass)) {
             throw new Exception("The model [$modelClass] does not support Lincable.");
         } 
+    }
+
+    /**
+     * Determinse wheter a model class uses lincable trait.
+     *
+     * @param  string  $model
+     * @return bool
+     */
+    protected function hasLincableTrait(string $model)
+    {
+        return in_array(Lincable::class, class_uses_recursive($model));
     }
 
     /**
@@ -321,5 +331,24 @@ class MediaManager
     protected function throwUploadFailureException()
     {
         throw new ConflictFileUploadHttpException('Could not store the file on disk.');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __call($name, $arguments)
+    {
+        if (empty($arguments)) {
+            static::throwBadMethodCallException($name);
+        } 
+
+        if (
+            $arguments[0] instanceof Model && 
+            $this->hasLincableTrait(get_class($arguments[0]))
+        ) {    
+            $arguments[0] = $arguments[0]->getRawUrl();
+        }
+
+        return $this->forwardCallTo($this->disk, $name, $arguments);
     }
 }

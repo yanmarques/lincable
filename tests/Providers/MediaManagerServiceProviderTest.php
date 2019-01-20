@@ -121,7 +121,7 @@ class MediaManagerServiceProviderTest extends TestCase
             'models.foo' => '/bar/baz'
         ];
         
-        $this->app['config']->set('lincable.urls', $expected);
+        $this->setUrls($expected);
 
         $conf = app(UrlGenerator::class)->getUrlConf();
         
@@ -144,7 +144,7 @@ class MediaManagerServiceProviderTest extends TestCase
         $root = 'foo';
 
         $this->app['config']->set('lincable.root', $root);
-        $this->app['config']->set('lincable.urls', $expected);
+        $this->setUrls($expected);
 
         $conf = app(UrlGenerator::class)->getUrlConf();
         
@@ -158,11 +158,9 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testConfiguringInvalidModelThrowException()
     {
-        $this->app['config']->set('lincable.urls', ['Example' => 'baz']);
-        
         $this->expectException(ConfModelNotFoundException::class);
-        
-        app(MediaManager::class);
+
+        $this->setUrls(['Example' => 'baz']);
     }
 
     /**
@@ -192,7 +190,7 @@ class MediaManagerServiceProviderTest extends TestCase
         $root = 'root';
 
         $this->app['config']->set('lincable.root', $root);
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             FooModel::class => 'foo/:year/:id'
         ]);
 
@@ -223,7 +221,7 @@ class MediaManagerServiceProviderTest extends TestCase
             ]
         ]);
 
-        $this->app['config']->set('lincable.urls', [
+        $this->setUrls([
             'models.media' => 'baz.bar'
         ]);
 

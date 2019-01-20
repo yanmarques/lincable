@@ -12,6 +12,7 @@ use Lincable\Http\File\FileResolver;
 use Lincable\Exceptions\NotResolvableFileException;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Lincable\Http\File\FileFactory;
 
 class FileResolverTest extends TestCase
 {
@@ -67,7 +68,7 @@ class FileResolverTest extends TestCase
         $uploadedFile = UploadedFile::fake()->create($this->getRandom($expected));
         $result = FileResolver::resolve($uploadedFile);
         $this->assertInstanceOf(File::class, $result);
-        $this->assertEquals(pathinfo($result, PATHINFO_EXTENSION), $expected);
+        $this->assertEquals(FileFactory::extension($result->getFilename()), $expected);
         unlink($result->path());
     }
 

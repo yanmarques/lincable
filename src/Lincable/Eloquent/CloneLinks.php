@@ -8,7 +8,11 @@ use Lincable\UrlGenerator;
 /**
  * @method bool replicate()
  * @method string getUrlField()
+ * @method mixed runQuiet()
  * @static \Lincable\MediaManager getMediaManager()
+ * @static \Illuminate\Contracts\Events\Dispatcher getEventDispatcher()
+ * @static \Illuminate\Contracts\Events\Dispatcher setEventDispatcher()
+ * @static void unsetEventDispatcher()
  */
 trait CloneLinks
 {
@@ -29,14 +33,32 @@ trait CloneLinks
     protected static function bootCloneLinks() 
     {
         static::created(function ($model) {
-            if ($model->isClone()) {
-                static::getMediaManager()->copy(
-                    $model->getSourceModel(), 
-                    $model,
-                    $model->preservesFilename()
-                )->save();
-            }
+            static::copyCloneMedia($model);
         });
+    }
+
+    /**
+     * Copy the media from source to the new cloned model. 
+     *
+     * @param  self  $model
+     * @return void
+     */
+    protected static function copyCloneMedia(self $model)
+    {
+        if ($model->isClone()) {
+            // Run copy in silence mode as this is just a callback
+            // function when clone is created.
+            $currentDispatcher = static::getEventDispatcher();
+            static::unsetEventDispatcher();
+
+            static::getMediaManager()->copy(
+                $model->getSourceModel(), 
+                $model,
+                $model->preservesFilename()
+            )->save();
+
+            static::setEventDispatcher($currentDispatcher);
+        }
     }
 
     /**

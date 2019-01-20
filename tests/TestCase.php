@@ -17,6 +17,7 @@ use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Tests\Lincable\Http\FileRequests\GenericFileRequest;
 use Lincable\Providers\MediaManagerServiceProvider;
 use Lincable\MediaManager;
+use Lincable\Http\File\FileFactory;
 
 class TestCase extends OrchestraTestCase
 {
@@ -86,12 +87,12 @@ class TestCase extends OrchestraTestCase
      */
     public function createFileRequest(string $extension)
     {
-        $this->createRequest(
+        $request = $this->createRequest(
             'generic', 
             $this->getRandom($extension)
         );
 
-        return tap($this->app->make(GenericFileRequest::class), function ($request) use ($extension) {
+        return tap(GenericFileRequest::createFrom($request), function ($request) use ($extension) {
             $request->setExtension($extension);
         });
     }
