@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/yanmarques/lincable.svg?branch=dev)](https://travis-ci.org/yanmarques/lincable)
  [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yanmarques/lincable/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/yanmarques/lincable/?branch=dev) 
 
-Link the Eloquent model to an uploaded file, store the file on storage and then save the url on model. :cloud:
+Link the Eloquent model to an uploaded file, store the file on storage and then create the model with the url. :cloud:
 
 # Table Of Contents
 
@@ -32,24 +32,13 @@ Here is the action to execute the upload.
 
 ```php
 
-/**
- * Upload an image to application.
- *
- * @param  ImageFileRequest $image
- * @return Response
- */
-public function upload(ImageFileRequest $image) 
-{
-    // The ImageFileRequest contains the current request.
-    $request = $image->getRequest();
+public function upload(ImageFileRequest $imageRequest) 
+{   
+    // Image request is the current request with no worries about
+    // the file, if we are here everything is OK.
+    $image = \App\Image::create($imageRequest->all());
     
-    // Create the image model on database with request attributes.
-    $image = \App\Image::create($request->all());
-    
-    // The model uses the lincable trait, which has the link method
-    // that store the file and generate a url for the model.
-    $image->link($image);
-    
+    // Here we have our link.
     $image->preview; // https://your-cloud-storage.com/media/foo/123/bar/321/e1wPJQmQpFPOaQ238fglQHnrxzv2uK8joPyozv9i.jpg
 }
 
@@ -63,7 +52,7 @@ We must add this package as dependency for your project, adding to your `compose
 ```json
 {
     "require-dev": {
-        "yanmarques/lincable": "^0.11.0"
+        "yanmarques/lincable": "^1.0.2"
     }
 }
 ```
@@ -102,12 +91,82 @@ Basically, you must to configurate the lincable file to get everything running c
 $ php artisan vendor:publish --provider="Lincable\Providers\MediaManagerServiceProvider"
 ```
 
-Now we have registered the package on your environment, and we need to start configuring how lincable should work. The package is very flexible given you control to decide how to use it, there is no a only way.   
+Now we have registered the package on your environment, and we need to start configuring how lincable should work. The package is very flexible given you control to decide how to use it, there is no only way.   
+
+## Configuration
+
+* disk: The current driver to use. Default will be the application driver.
+* root: (Optional) The root prefix to prepend in every url. `Null` for no root.
+* temp_directory: Default is `null` that gets the defined `sys_temp_dir` directive.
+* keep_media_on_delete: If should delete the file when the model is deleted. Default is false.
+* upload_subscriber: The event upload subscriber implementation.
+* models (Optional)
+    - namespace: The root namespace to find the models.
+    - url_field: The global field to store the link on the model.
+* urls: An array of the model urls. It is used combined with `models` configuration.
+Example:
+
+Imagine this file structure:
+```php
+'App' => [
+     ...
+     'Models' => [
+         'Toy.php',
+         'User.php'
+     ]
+]
+```
+
+To better find this models without huge noising imports we give the option to provide us a root namespace once, and we will try to load the model based on string names, look:
+
+```php
+'models' => [
+    'namespace' => 'App',
+    'url_field' => 'preview'
+],
+'urls' => [
+    'models.toy' => '/bar/:id',
+    'models.user' => '/foo/:id'
+]
+```
+
+This will set that `App\Model\Toy` class have this url `/bar/:id`, respectivaly. I give just an example here, you can configurate as you wish.
+
+* parsers: (Optional) An array of custom parsers implementation.
+* default_parsers: Here is stored the default parsers for application. Please do not change this unless:
+   - You are using another implementation.
+   - You know what you are doing.
+   - Removing unecessary classes for productione environments, see more [here](#production). 
 
 ## Configuring The Model
 
-The eloquent model will be responsable to link the file. The link will be generated based on the lincable file configuration, by the [url generator](#urlgenerator). On model we just need to add the [lincable trait](#lincable-trait) to support linking the model with a file.
-Suppose we have an image model which has an `id` and `user_id` attributes, both uuid type.
+The eloquent model will be responsable to link the file. The link will be generated based on the lincable file configuration, by the [url generator](#urlgenerator). Now what we need to do is add the [lincable trait](#lincable-trait) to support linking the model with a file.
+To do that you add this `Lincable\Eloquent\Trait\Lincable` trait to your model.
+
+Now you have some optional configuration in hands.
+
+OBS: `Null` attribute values will always fallback to the global configuration.
+
+### Do I add the url field to fillable?
+
+You should not. Because 
+
+### Locally defining the url field
+
+* You overwrite the url field to use on this model. 
+```php
+protected $urlField = 'value';
+```
+
+### Locally defining keep files when deleted
+
+* You can overwrite the global configuration to keep media when model was deleted.
+```php
+protected $keepMediaOnDelete = true;
+```
+
+Now we know how make custom configurations, let's create a scenario here.
+Suppose we have an image model which has an `id` and `user_id` attributes.
 
 ```php
 use Lincable\Eloquent\Trait\Lincable;
@@ -119,7 +178,7 @@ class Image extends Model
     protected $fillable = ['user_id'];
 }
 ```
-
+Another thing 
 Once we have our model, we need to define the url generated for the model. We must set the urls on `config/lincable.php`. Urls is the list with all model urls configuration. Each model has an url, and this one, by default has dynamic parameters to be injected with the model attributes, see [parsers and formatters](#parsers-and-formatters) for more details of how to use default dynamic parameters. For example, we want to save the file in an url that contains the `user_id` and the model `id`, something like that this path: `users/user-id-here/ìmages/id-here/`. We can inject model attributes on url using the url dynamic parameters.
 
 Here the file `config/lincable.php` configuration.
@@ -133,7 +192,7 @@ return [
 ];
 ```
 
-Ok, now we create the controller to handle the upload. Laravel uses the containter dependency injection to resolve classes, methods, closures, etc..., the controller action registered on route has this definition as well. As seen before at [basic usage](#basic-usage), the controller should receive the file request as argument, this is nice because the file request must be booted with the current request to work, and when the container resolves a file request, it boots the object with the request. The code at basic usage ensures the file type, because as explained before, the file request as service must be booted with the current request, and this process is necessary to validate the file with the rules. Once the file is not valid, we do not even execute the action code.  
+Ok, now we create the controller to handle the upload. Laravel uses containter dependency injection to resolve classes, methods, closures, etc..., the controller action registered on route has this definition as well. As seen before at [basic usage](#basic-usage), the controller should receive the file request as argument, this is nice because the file request is a request child, and also extends from laravel's [FormRequest](https://laravel.com/docs/5.7/validation#creating-form-requests). The code at basic usage ensures the file type, because as explained before, the file request has the validate when resolved behavior, that stops after an invalid request, without touching controller action.  
 
 The `ImageFileRequest` extends from the `FileRequest` abstract class that actually handles the validation and configuration on file. When file request is booted with the curren request stack, we try to load the file uploaded from class name, in this case the file parameter would be `image`. The only abstract method to implement is the `rules`, that returns the validation rules for the uploaded file, see laravel [validations](https://laravel.com/docs/5.6/validation#rule-mimes) for more details. 
 
