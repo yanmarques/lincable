@@ -46,18 +46,15 @@ trait CloneLinks
     protected static function copyCloneMedia(self $model)
     {
         if ($model->isClone()) {
-            // Run copy in silence mode as this is just a callback
-            // function when clone is created.
-            $currentDispatcher = static::getEventDispatcher();
-            static::unsetEventDispatcher();
-
-            static::getMediaManager()->copy(
-                $model->getSourceModel(), 
-                $model,
-                $model->preservesFilename()
-            )->save();
-
-            static::setEventDispatcher($currentDispatcher);
+            \Event::fakeFor(
+                function () use ($model) {
+                    static::getMediaManager()->copy(
+                        $model->getSourceModel(), 
+                        $model,
+                        $model->preservesFilename()
+                    )->save();
+                }
+            );
         }
     }
 

@@ -15,7 +15,7 @@ class CreateMediaTestTable extends Migration
     {
         Schema::create('media_test', function (Blueprint $table) {
             $table->increments('id');
-            $table->string(config('lincable.models.url_field'));
+            $table->string(config('lincable.models.url_field'))->nullable();
             $table->timestamps();
         });
     }

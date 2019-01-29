@@ -11,6 +11,10 @@ class Media extends Foo implements Htmlable
 
     protected $table = 'media_test';
 
+    protected $fillable = [
+        'id'
+    ];
+
     public $preserveName = false;
 
     public $keepMediaOnDelete = null;

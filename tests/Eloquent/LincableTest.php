@@ -5,6 +5,7 @@ namespace Tests\Eloquent;
 use Event;
 use Storage;
 use Illuminate\Http\File;
+use Lincable\MediaManager;
 use Tests\Lincable\TestCase;
 use Lincable\Eloquent\Lincable;
 use Tests\Lincable\Models\Media;
@@ -153,11 +154,13 @@ class LincableTest extends TestCase
         
         $media = new Media(['id' => 123]);
         $media->link($this->createFile($expected));
-
+        
         $clone = $media->replicate();
         $clone->save();
 
         $this->assertNotEquals($media->getRawUrl(), $clone->getRawUrl());
+
+        $this->assertStringStartsNotWith('/', $clone->getRawUrl());
 
         $clone->withMedia(function ($file) use ($expected) {
             $this->assertEquals($expected, file_get_contents($file->path()));
@@ -206,7 +209,7 @@ class LincableTest extends TestCase
         $clone = $media->replicate();
         $clone->save();
 
-        Event::assertNotDispatched('eloquent.saved : *');
+        Event::assertNotDispatched('eloquent.updated: '.get_class($clone));
     }
 
     /**
@@ -320,5 +323,30 @@ class LincableTest extends TestCase
         $media->link($this->createFile(""));
 
         $this->assertStringContainsString($media->getUrl(), e($media));
+    }
+
+    /**
+     * Should create the model based on request firing properly events.
+     *
+     * @return void
+     */
+    public function testCreateWithFileRequestScopeOnlyFireCreateEvent()
+    {
+        Event::fake();
+
+        $this->setUrls([
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+        
+        $request = $this->createFileRequest('txt')->merge(['id' => 123]);
+    
+        $media = Media::createWithFileRequest($request);
+
+        $this->assertTrue(app(MediaManager::class)->has($media));
+    
+        Event::assertDispatched('eloquent.created: '.Media::class);
+        Event::assertDispatched('eloquent.creating: '.Media::class);
+        Event::assertDispatched(UploadSuccess::class);
+        Event::assertNotDispatched('eloquent.updated: '.Media::class);
     }
 }
