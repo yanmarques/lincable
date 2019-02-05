@@ -28,7 +28,7 @@ trait Lincable
      * @return void
      */
     protected static function bootLincable()
-    {   
+    {
         static::deleted(function ($model) {
             if (! $model->shouldKeepMediaWhenDeleted()) {
                 static::getMediaManager()->delete($model);
@@ -40,7 +40,7 @@ trait Lincable
      * Return the raw url saved on database.
      *
      * @return string
-     * 
+     *
      * @throws \Lincable\Exceptions\LinkNotFoundException
      */
     public function getRawUrl()
@@ -68,7 +68,7 @@ trait Lincable
     public function scopeCreateWithFileRequest($query, FileRequest $fileRequest)
     {
         return tap(
-            $query->newModelInstance($fileRequest->all()), 
+            $query->newModelInstance($fileRequest->all()),
             function ($instance) use ($fileRequest) {
                 $instance->perfomCreateWithFileRequest($fileRequest);
             }
@@ -83,35 +83,27 @@ trait Lincable
      */
     public function perfomCreateWithFileRequest(FileRequest $request)
     {
+        if ($request->getFile() === null) {
+            return $this->save();
+        }
+
         if ($this->fireModelEvent('creating') === false) {
             return false;
         }
 
-        // List of events to not be fired when creating the model
-        // from a FileRequest. As the model is only considered really
-        // created after file upload is ready, we only fire events after that.
-        $fakeEvents = [
-            'created',
-            'creating',
-            'updated',
-            'updating',
-            'saved',
-            'saving',
-            'deleted',
-            'deleting'
-        ];
-
+        $silentEvents = $this->getSilentUploadEvents();
+        
         \Event::fakeFor(
             function () use ($request) {
-                // First we create the model on database, then we are allowed to proceed 
-                // sending the file to storage, no more breaks stops us from finishing, 
-                // unless upload failed. 
+                // First we create the model on database, then we are allowed to proceed
+                // sending the file to storage, no more breaks stops us from finishing,
+                // unless upload failed.
                 $this->save();
                 $this->link($request);
             },
             array_map(function ($event) {
                 return "eloquent.{$event}: ".static::class;
-            }, $fakeEvents)
+            }, $silentEvents)
         );
 
         $this->fireModelEvent('created');
@@ -137,7 +129,7 @@ trait Lincable
         // a HTTPException is also reported, if not covered will return a 409 HTTP status.
         return static::getMediaManager()
             ->upload($file, $this, $this->getCustomUploadHeaders())
-            ->save();  
+            ->save();
     }
 
     /**
@@ -213,7 +205,7 @@ trait Lincable
      */
     public function fillUrl(string $url)
     {
-        // Fill the url with unguarded permissions.  
+        // Fill the url with unguarded permissions.
         static::unguarded(function () use ($url) {
             $this->fill([$this->getUrlField() => ltrim($url, '/')]);
         });
@@ -224,7 +216,7 @@ trait Lincable
     /**
      * Return the media manager instance.
      *
-     * @return \Lincable\MediaManager 
+     * @return \Lincable\MediaManager
      */
     public static function getMediaManager()
     {
@@ -239,7 +231,7 @@ trait Lincable
      * Set the newly media manager.
      *
      * @param  \Lincable\MediaManager  $manager
-     * @return void 
+     * @return void
      */
     public static function setMediaManager(MediaManager $manager)
     {
@@ -248,14 +240,14 @@ trait Lincable
 
     /**
      * Determine wheter shoul keep the media for the model.
-     * 
+     *
      * @return bool
      */
     public function shouldKeepMediaWhenDeleted()
-    {        
+    {
         return (bool) (
-            isset($this->keepMediaOnDelete) 
-                ? $this->keepMediaOnDelete 
+            isset($this->keepMediaOnDelete)
+                ? $this->keepMediaOnDelete
                 : config('lincable.keep_media_on_delete', false)
             );
     }
@@ -275,6 +267,21 @@ trait Lincable
     }
 
     /**
+     * List of events to not be fired when creating the model
+     * from a FileRequest. As the model is only considered really
+     * created after file upload is ready, we only fire events after that.
+     *
+     * @return array
+     */
+    protected function getSilentUploadEvents()
+    {
+        return (array) (
+            $this->silentUploadEvents ??
+            config('lincable.models.silent_upload_events', [])
+        );
+    }
+
+    /**
      * Forward getter call.
      *
      * @param  mixed  $key
@@ -288,7 +295,7 @@ trait Lincable
                 return $this->mutateAttribute($key, $this->getRawUrl());
             }
 
-            return $this->getUrl();            
+            return $this->getUrl();
         }
 
         return $this->getAttribute($key);
@@ -319,22 +326,22 @@ trait Lincable
 
     /**
      * Return the key -> value array for htmlable element.
-     * 
+     *
      * @return array
      */
-    protected function getHtmlOptions() 
+    protected function getHtmlOptions()
     {
         return [];
     }
 
     /**
      * Ensures the model will have an url stored in attributes.
-     * 
+     *
      * @return void
-     * 
+     *
      * @throws \Lincable\Exceptions\LinkNotFoundException
      */
-    protected function ensureHasUrl() 
+    protected function ensureHasUrl()
     {
         if ($this->getRawUrl() === null) {
             // The preview image could not be found for model.
@@ -342,5 +349,5 @@ trait Lincable
                 'Model ['.static::class.'] does not a file linked with.'
             );
         }
-    }  
+    }
 }

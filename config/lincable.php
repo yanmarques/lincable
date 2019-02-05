@@ -88,6 +88,16 @@ return [
     'models' => [
         'namespace' => 'App',
         'url_field' => 'preview',
+        'silent_upload_events' => [
+            'created',
+            'creating',
+            'updated',
+            'updating',
+            'saved',
+            'saving',
+            'deleted',
+            'deleting'
+        ]
     ],
 
     /*
