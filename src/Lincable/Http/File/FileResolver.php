@@ -16,33 +16,48 @@ class FileResolver
      * Resolve the file object to a symfony file, handling the
      * file request operations.
      *
-     * @throws \Lincable\Exceptions\NotResolvableFileException
-     *
      * @param  mixed $file
      * @return \Illuminate\Http\File
      */
     public static function resolve($file)
     {
-        switch (true) {
-            case is_string($file):
-                $file = new SymfonyFile($file);
-                break;
-            case $file instanceof FileRequest:
-                $file = static::resolveFileRequest($file);
-                break;
-            case $file instanceof UploadedFile:
-                $filename = $file->hashName();
-                $file = $file->move(config('lincable.temp_directory'), $filename);
-                break;
-            case $file instanceof IlluminateFile:
-                return $file;
-                break;
-            case $file instanceof Symfonyfile: break;
-            default:
-                throw new NotResolvableFileException($file);
+        if ($file instanceof IlluminateFile) {
+            return $file;
         }
 
-        return static::toIlluminateFile($file);
+        return static::toIlluminateFile(static::resolveSymfonyFile($file));
+    }
+
+    /**
+     * Prepare the file .
+     *
+     * @param  mixed  $file
+     * @return \Symfony\Component\HttpFoundation\File\File
+     * 
+     * @throws \Lincable\Exceptions\NotResolvableFileException
+     */
+    public static function resolveSymfonyFile($file)
+    {
+        if (is_string($file)) {
+            return new SymfonyFile($file);
+        }
+            
+        if ($file instanceof FileRequest) {
+            return $file->prepareFile();
+        }
+            
+        if ($file instanceof UploadedFile) {
+            return $file->move(
+                FileFactory::getTemporaryDirectory(), 
+                $file->hashName()
+            );   
+        }
+        
+        if ($file instanceof Symfonyfile) {
+            return $file;
+        }
+
+        throw new NotResolvableFileException($file);
     }
 
     /**
@@ -54,25 +69,5 @@ class FileResolver
     public static function toIlluminateFile(SymfonyFile $file)
     {
         return new IlluminateFile($file->getPathName());
-    }
-
-    /**
-     * Handle a file request and resolve to a file.
-     *
-     * @param  \Lincable\Http\FileRequest $file
-     * @return \Symfony\Component\HttpFoundation\File\File
-     */
-    public static function resolveFileRequest(FileRequest $file)
-    {
-        // Get the global container instance.
-        $app = Container::getInstance();
-
-        if (! $file->isBooted()) {
-
-            // Boot the file request with the current request.
-            $file->boot($app->make(Request::class));
-        }
-
-        return $file->prepareFile($app);
     }
 }

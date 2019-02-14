@@ -4,12 +4,9 @@ namespace Tests\Lincable;
 
 use LogicException;
 use Lincable\UrlCompiler;
-use Lincable\Parsers\Parser;
-use Lincable\Parsers\Options;
-use PHPUnit\Framework\TestCase;
 use Lincable\Parsers\ColonParser;
-use Illuminate\Container\Container;
-use Lincable\Contracts\Parsers\ParameterInterface;
+use Tests\Lincable\Parsers\FooParser;
+use Tests\Lincable\Formatters\BarFormatter;
 
 class UrlCompilerTest extends TestCase
 {
@@ -17,7 +14,10 @@ class UrlCompilerTest extends TestCase
 
     public function setUp()
     {
-        $parser = new ColonParser(new Container);
+        parent::setUp();
+
+        $parser = app(ColonParser::class);
+
         $this->compiler = new UrlCompiler($parser);
     }
 
@@ -41,7 +41,7 @@ class UrlCompilerTest extends TestCase
     public function testThatCompileReturnTheUrlCompiled()
     {
         $expected = 'foo/bar';
-        $this->compiler->getParser()->addFormatter(Bar::class);
+        $this->compiler->getParser()->addFormatter(BarFormatter::class);
         $result = $this->compiler->compile('foo/:bar');
         $this->assertEquals($expected, $result);
     }
@@ -76,7 +76,7 @@ class UrlCompilerTest extends TestCase
      */
     public function testThatSetParserChangesTheParserUsedOnCompiler()
     {
-        $parser = new FooParser;
+        $parser = app(FooParser::class);
         
         $parser->addFormatter(function () {
             return 'baz';
@@ -131,37 +131,5 @@ class UrlCompilerTest extends TestCase
         $compiler = new UrlCompiler;
         $this->expectException(\Exception::class);
         $compiler->getParser();
-    }
-}
-
-class Bar
-{
-    public function format()
-    {
-        return 'bar';
-    }
-}
-
-class FooParser extends Parser
-{
-    public function __construct()
-    {
-        $this->boot(new Container);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function parseMatches(array $matches): ParameterInterface
-    {
-        return new Options(head($matches));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getDynamicPattern(): string
-    {
-        return '/^foo@([a-zA-Z]+)$/';
     }
 }

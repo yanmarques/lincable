@@ -2,6 +2,7 @@
 
 namespace Lincable;
 
+use RuntimeException;
 use Lincable\Parsers\Parser;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -62,6 +63,10 @@ class UrlGenerator
      */
     public function __construct(Compiler $compiler, Collection $parsers, UrlConf $urlConf)
     {
+        if ($parsers->isEmpty()) {
+            throw new RuntimeException('Parsers collection can not be empty.');
+        }
+
         $this->parsers = $parsers;
         $this->urlConf = $urlConf;
         $this->compiler = $compiler;
@@ -89,10 +94,10 @@ class UrlGenerator
      * Guard the model setting verifying wheter the model is also configured
      * on url configuration.
      *
-     * @throws \Lincable\Exceptions\NoModelConfException
-     *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @return void
+     * 
+     * @throws \Lincable\Exceptions\NoModelConfException
      */
     protected function guardModel(Model $model)
     {
@@ -158,9 +163,9 @@ class UrlGenerator
     /**
      * Return the model instance.
      *
-     * @throws \Exception
-     *
      * @return \Illuminate\Database\Eloquent\Model
+     * 
+     * @throws \Exception
      */
     public function getModel()
     {
