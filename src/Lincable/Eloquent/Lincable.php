@@ -127,9 +127,15 @@ trait Lincable
         // success, the model is auto updated, setting the url_field model configuration
         // with the path to the new file. On error, an event of failure is dispatched and
         // a HTTPException is also reported, if not covered will return a 409 HTTP status.
-        return static::getMediaManager()
+        $saved = static::getMediaManager()
             ->upload($file, $this, $this->getCustomUploadHeaders())
             ->save();
+
+        // verifies whether it is necessary to update the updated_at field
+        if ($saved && $this->wasRecentlyCreated) {
+            return $this->touch();
+        }
+        return $saved;
     }
 
     /**
