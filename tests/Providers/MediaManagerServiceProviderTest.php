@@ -4,11 +4,16 @@ namespace Tests\Lincable;
 
 use Closure;
 use Lincable\MediaManager;
+use Lincable\UrlGenerator;
 use Tests\Lincable\TestCase;
-use Illuminate\Container\Container;
+use Tests\Lincable\Models\Media;
+use Tests\Lincable\Parsers\DotParser;
+use Tests\Lincable\Models\Foo as FooModel;
+use Tests\Lincable\Formatters\FooFormatter;
 use Lincable\Eloquent\Events\UploadSuccess;
-use Lincable\Eloquent\Events\UploadFailure;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Lincable\Providers\MediaManagerServiceProvider;
+use Lincable\Exceptions\ConfModelNotFoundException;
 
 class MediaManagerServiceProviderTest extends TestCase
 {
@@ -17,7 +22,8 @@ class MediaManagerServiceProviderTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->provider = new MediaManagerServiceProvider(Container::getInstance());
+
+        $this->provider = new MediaManagerServiceProvider($this->app);
     }
 
     /**
@@ -28,11 +34,9 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testRegisterWillResolveMediaManagerSingleton()
     {
-        $this->setDisk('s3');
         $this->provider->register();
         
-        $container = Container::getInstance();
-        $this->assertInstanceOf(MediaManager::class, $container->make(MediaManager::class));
+        $this->assertInstanceOf(MediaManager::class, app(MediaManager::class));
     }
 
     /**
@@ -42,10 +46,9 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testBootSubscriberUploadSubscriberFromConfiguration()
     {
-        $this->setDisk('s3');
         $this->provider->boot();
 
-        $subscribers = Container::getInstance()['events']->getListeners(UploadSuccess::class);
+        $subscribers = $this->app['events']->getListeners(UploadSuccess::class);
         
         $this->assertInstanceOf(
             Closure::class,
@@ -60,10 +63,180 @@ class MediaManagerServiceProviderTest extends TestCase
      */
     public function testBootWillRegisterTheConfigurationFile()
     {
+        $this->setDisk('s3');
         $this->provider->boot();
         $config = __DIR__.'/../../config/lincable.php';
         
-        $container = Container::getInstance();
-        $this->assertEquals(require $config, $container['config']['lincable']);
+        $this->assertEquals(require $config, $this->app['config']['lincable']);
+    }
+
+    /**
+     * Should change the parsers on url generator from configuration.
+     *
+     * @return void
+     */
+    public function testParsersWithCustomParsersConfiguration()
+    {
+        $parsers = [
+            DotParser::class => [
+                FooFormatter::class
+            ]
+        ];
+        
+        $this->app['config']->set('lincable.parsers', $parsers);
+        $defaultParsers = config('lincable.default_parsers');
+
+        $urlParsers = app(UrlGenerator::class)->getParsers();
+        $urlParsers = $urlParsers->map(function ($parser) {
+            return [
+                get_class($parser) => $parser->getFormatters()->values()->toArray()
+            ];
+        })->collapse();
+        
+        $this->assertEquals(array_merge($defaultParsers, $parsers), $urlParsers->toArray());
+    }
+
+    /**
+     * Should return a local adapter.
+     *
+     * @return void
+     */
+    public function testGetDiskWithNewConfiguration()
+    {
+        $this->setDisk('local');
+        $disk = app(MediaManager::class)->getDisk();
+        $this->assertInstanceOf(FilesystemAdapter::class, $disk);
+    }
+
+    /**
+     * Should create the url conf setting the model with dot notation.
+     *
+     * @return void
+     */
+    public function testModelsConfigurationWithDotNotation()
+    {
+        $this->registerModels();
+
+        $expected = [
+            'models.foo' => '/bar/baz'
+        ];
+        
+        $this->setUrls($expected);
+
+        $conf = app(UrlGenerator::class)->getUrlConf();
+        
+        $this->assertEquals($conf->get(FooModel::class), head($expected));
+    }
+
+    /**
+     * Should create the url conf with the root configuration.
+     *
+     * @return void
+     */
+    public function testModelsConfigurationWithRoot()
+    {
+        $this->registerModels();
+
+        $expected = [
+            'models.foo' => 'bar/baz'
+        ];
+        
+        $root = 'foo';
+
+        $this->app['config']->set('lincable.root', $root);
+        $this->setUrls($expected);
+
+        $conf = app(UrlGenerator::class)->getUrlConf();
+        
+        $this->assertEquals($conf->get(FooModel::class), $root.'/'.head($expected));
+    }
+    
+    /**
+     * Should throw an exception when has invalid model on configuration.
+     *
+     * @return void
+     */
+    public function testConfiguringInvalidModelThrowException()
+    {
+        $this->expectException(ConfModelNotFoundException::class);
+
+        $this->setUrls(['Example' => 'baz']);
+    }
+
+    /**
+     * Should throw an exception when has invalid model on configuration.
+     *
+     * @return void
+     */
+    public function testConfiguringNonParserOnParsersThrowException()
+    {
+        $this->app['config']->set('lincable.default_parsers', []);
+        $this->app['config']->set('lincable.parsers', []);
+
+        $this->expectException(\RuntimeException::class);
+        
+        app(MediaManager::class);
+    }
+
+    /**
+     * Should generate the url for the model.
+     *
+     * @return void
+     */
+    public function testGenerateUrlForConfiguredModel()
+    {
+        $this->registerModels();
+
+        $root = 'root';
+
+        $this->app['config']->set('lincable.root', $root);
+        $this->setUrls([
+            FooModel::class => 'foo/:year/:id'
+        ]);
+
+        $model = new FooModel(['id' => 123]);
+
+        $urlGenerator = app(UrlGenerator::class);
+        $url = $urlGenerator->forModel($model)->generate();
+        
+        $this->assertEquals(
+            sprintf('%s/foo/%s/%s', $root, now()->year, $model->id),
+            $url
+        );
+    }
+
+    /**
+     * Should override formatter name by class aliasing 
+     * a name as the key on array.
+     * 
+     * @return void
+     */
+    public function testWillRegisterKeyedFormatters()
+    {
+        $this->registerModels();
+
+        $this->app['config']->set('lincable.default_parsers', [
+            DotParser::class => [
+                'bar' => FooFormatter::class
+            ]
+        ]);
+
+        $this->setUrls([
+            'models.media' => 'baz.bar'
+        ]);
+
+        $url = $this->app->make(MediaManager::class)->newLink(new Media);
+
+        $this->assertEquals('/foo', $url);
+    }
+
+    /**
+     * Register the testing model's namespace.
+     * 
+     * @return void
+     */
+    protected function registerModels() 
+    {
+        $this->app['config']->set('lincable.models.namespace', 'Tests\Lincable');
     }
 }

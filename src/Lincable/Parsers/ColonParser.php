@@ -10,7 +10,7 @@ class ColonParser extends Parser
     /**
      * Create a new class instance.
      *
-     * @parama Illuminate\Contracts\Container\Container $app
+     * @param \Illuminate\Contracts\Container\Container $app
      * @return void
      */
     public function __construct(Container $app)

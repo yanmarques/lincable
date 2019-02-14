@@ -2,8 +2,8 @@
 
 namespace Tests\Lincable\Parsers;
 
+use Tests\Lincable\TestCase;
 use Lincable\Parsers\Options;
-use PHPUnit\Framework\TestCase;
 use Lincable\Contracts\Parsers\ParameterInterface;
 
 class OptionsTest extends TestCase

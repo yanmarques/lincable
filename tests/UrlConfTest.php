@@ -3,7 +3,7 @@
 namespace Tests\Lincable;
 
 use Lincable\UrlConf;
-use PHPUnit\Framework\TestCase;
+use Tests\Lincable\Models\Foo;
 use Lincable\Exceptions\ConfModelNotFoundException;
 
 class UrlConfTest extends TestCase
@@ -12,7 +12,9 @@ class UrlConfTest extends TestCase
 
     public function setUp()
     {
-        $this->urlConf = new UrlConf('Tests\Lincable');
+        parent::setUp();
+
+        $this->urlConf = new UrlConf('Tests\Lincable\Models');
     }
 
     /**
@@ -142,8 +144,4 @@ class UrlConfTest extends TestCase
         $result = $this->urlConf->all();
         $this->assertEquals($expected, $result);
     }
-}
-
-class Foo
-{
 }

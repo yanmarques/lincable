@@ -2,12 +2,10 @@
 
 namespace Tests\Lincable\Parsers;
 
-use Carbon\Carbon;
 use LogicException;
-use Lincable\Formatters;
-use PHPUnit\Framework\TestCase;
+use Tests\Lincable\TestCase;
 use Lincable\Parsers\ColonParser;
-use Illuminate\Container\Container;
+use Tests\Lincable\Formatters\FooFormatter;
 use Lincable\Exceptions\NotDynamicOptionException;
 
 class ColonParserTest extends TestCase
@@ -16,8 +14,9 @@ class ColonParserTest extends TestCase
 
     public function setUp()
     {
-        $container = new Container;
-        $this->parser = new ColonParser($container);
+        parent::setUp();
+
+        $this->parser = app(ColonParser::class);
     }
 
     /**

@@ -26,7 +26,7 @@ The lincable package handle the file upload, store the file on some disk storage
 
 ## Basic Usage
 
-When working with file uploads, generally we expect some data types on upload, or we need to move the temporary file created by PHP to a correct location. Controller's action should not have file manipulation logic, anyway this is totaly common to have file manipulation on controller action, but putting these logic on controller make the logic becomes duplicate code once this kind of manipulation is generally the same. `FileRequest` class solves this problem, removing the upload logic from controller. Sure, the class also carries the rules to validate the file and execute an event method before saving the file. Using the file request as parameter of the action ensures the data type been uploaded.
+When working with file uploads, generally we expect some data types on upload, or we need to move the temporary file created by PHP to a correct location. Controller's action should not have file manipulation logic, but putting these logic on controller make the it becomes duplicate code, once this kind of manipulation is generally the same. `FileRequest` class solves this problem, removing the upload logic from controller. Sure, the class also carries the rules to validate the file and execute an event method before saving the file. Using the file request as parameter of the action ensures the data type been uploaded.
 
 Here is the action to execute the upload.
 
