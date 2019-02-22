@@ -23,6 +23,17 @@ trait Lincable
     protected static $mediaManager;
 
     /**
+     * Determine wheter the model already has a file linked and should to reuse the same url
+     *
+     * @return void
+     */
+    public function shouldOverwrite()
+    {
+        $overwrite = $this->overwriteExisting ?? config('lincable.overwrite_exsting');
+        return ($this->getRawUrl() && $overwrite);
+    }
+
+    /**
      * Boots the trait.
      *
      * @return void
