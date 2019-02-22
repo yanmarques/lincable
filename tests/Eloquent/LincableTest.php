@@ -151,6 +151,46 @@ class LincableTest extends TestCase
     }
 
     /**
+     * Should re-link the model to another file, keeping
+     * the same url.
+     *
+     * @return void
+     */
+    public function testUseModelUrlWhenAlreadySet()
+    {
+        Event::fake();
+
+        $this->setDisk('foo');
+        $this->setConfig('lincable.urls', [
+            Media::class => 'foo/:year/:month/:id'
+        ]);
+
+        $this->bindMediaManager();
+    
+        // Create the random file with random text.
+        $file = new File(tap('/tmp/'.$this->getRandom('txt'), function ($file) {
+            touch($file);
+            file_put_contents($file, str_random());
+        }));
+        
+        $media = $this->createModel(['id' => 123]);
+        $media->link($file);
+
+        // Get the old url.
+        $oldUrl = $media->preview;
+        
+        // Create a new file to link with.
+        $newlyFile = new File(tap('/tmp/'.$this->getRandom('txt'), function ($file) {
+            touch($file);
+            file_put_contents($file, str_random());
+        }));
+
+        $media->link($newlyFile);
+        
+        $this->assertEquals($oldUrl, $media->preview);
+    }
+
+    /**
      * Bind a new media manager to container.
      *
      * @return void
