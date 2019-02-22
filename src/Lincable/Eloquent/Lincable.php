@@ -29,7 +29,7 @@ trait Lincable
      */
     public function shouldOverwrite()
     {
-        $overwrite = $this->overwriteExisting ?? config('lincable.overwriteExsting');
+        $overwrite = $this->overwriteExisting ?? config('lincable.overwrite_exsting');
         return ($this->getRawUrl() && $overwrite);
     }
 
