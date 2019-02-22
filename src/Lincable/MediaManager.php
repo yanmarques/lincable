@@ -149,10 +149,10 @@ class MediaManager
             // Define the arguments list and method to the media upload.
             list($arguments, $putMethod) = [[$link, $media], 'putFile'];
 
-            // Determine wheter the model already has a file linked to reuse 
-            // the same url. Then the media filename is inserted into the arguments 
+            // Determine if the model should overwrite the same filename.
+            // Then the media filename is inserted into the arguments 
             // and we change the upload method to accept a filename. 
-            if ($model->getRawUrl()) {
+            if ($model->shouldOverwrite()) {
                 $arguments[] = $model->getFileName();
                 $putMethod = 'putFileAs';
             } 
